@@ -44,7 +44,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
     <Compile Include="data\HBaseLines.cs" />
     <Compile Include="data\HData.cs" />
     <Compile Include="data\HLine.cs" />
