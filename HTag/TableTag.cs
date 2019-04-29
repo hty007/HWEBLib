@@ -29,7 +29,13 @@ namespace htyWEBlib.Tag
             return row;
         }
 
-        
+        public TR_Tag AddTR()
+        {
+            var tr = new TR_Tag();
+            this.AddContent(tr);
+            return tr;
+            //throw new NotImplementedException();
+        }
     }
 
     public class TR_Tag : HTag
@@ -57,9 +63,11 @@ namespace htyWEBlib.Tag
             
         }
 
-        public new TD_Tag AddTD()
+        public TD_Tag AddTD(string NameID =null, string width = null)
         {
             var td = new TD_Tag();
+            if (NameID != null) td.SetNameID(NameID);
+            if (width != null) td.Width = width;
             AddContent(td);
             return td;
         }
@@ -75,5 +83,9 @@ namespace htyWEBlib.Tag
         {
             Text = text;
         }
+
+        public string Width { get=> this["width"]; set=> this["width"] = value; }
+
+        
     }
 }

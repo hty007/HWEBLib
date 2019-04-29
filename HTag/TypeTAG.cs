@@ -30,7 +30,10 @@
         td,
         form,
         input,
-        label
+        label,
+        br,
+        select,
+        option
     }
 
 }

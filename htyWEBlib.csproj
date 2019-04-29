@@ -51,7 +51,9 @@
     <Compile Include="data\IHData.cs" />
     <Compile Include="data\IHLines.cs" />
     <Compile Include="HTag\BuilderTag.cs" />
+    <Compile Include="HTag\FormTag.cs" />
     <Compile Include="HTag\HtmlTag.cs" />
+    <Compile Include="HTag\InputTag.cs" />
     <Compile Include="HTag\TableTag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HTag\HTag.cs" />

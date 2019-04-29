@@ -2,7 +2,7 @@
 
 namespace htyWEBlib.Tag
 {
-    public class FormTag : BuilderTag
+    public class FormTag : HTag
     {
         #region поля и свойства
         /// <summary>
@@ -17,6 +17,7 @@ namespace htyWEBlib.Tag
         /// </summary>
         /// <value>The metod.</value>
         public string Metod { get => this["metod"]; set => this["metod"] = value; }
+                
         /// <summary>
         /// enctype: устанавливает тип передаваемых данных. Он свою очередь может принимать следующие значения:
         /// application/x-www-form-urlencoded: кодировка отправляемых данных по умолчанию
@@ -25,6 +26,8 @@ namespace htyWEBlib.Tag
         /// </summary>
         /// <value>The enctype.</value>
         public string Enctype { get => this["enctype"]; set => this["enctype"] = value; }
+        public static readonly string[] EncType = { "application/x-www-form-urlencoded", "multipart/form-data", "text/plain" };
+
         /// <summary>
         /// Если нам надо включить автодополнение только для каких-то определенных полей, 
         /// то мы можем применить к ним атрибут autocomplete="on":
@@ -37,37 +40,15 @@ namespace htyWEBlib.Tag
         public FormTag(string metod = "post") : base(TypeTAG.form)
         { Metod = metod; }
 
-        public FormTag(string metod = "post", string action = "", string enctype = "", string autocomplete = "") : this(metod)
+        public FormTag(string action, string enctype = "", string autocomplete = "", string metod = "post") : this(metod)
         {
-            if (action != "") Action = action;
+            Action = action;
             if (enctype != "") Enctype = enctype;
             if (autocomplete != "") Autocomplete = autocomplete;
         }
 
         #endregion
-        #region фУНКЦИОНАЛ
-        public HTag AddLabel(string text)
-        {
-            var label = HTag.Build(TypeTAG.label);
-            label.Text = text;
-            return label;
-        }
-        public HTag AddTextInput(string nameID = "", string value = "")
-        {
-            var text = new InputTag(TypeInput.text);
-            if (nameID != "")   text.SetNameID(nameID);
-            if (value != "") text.Value = value;
-            this.AddContent(text);
-            return text;
-        }
-        public HTag AddSubmit(string nameID = "", string value = "")
-        {
-            var sub = new InputTag(TypeInput.submit);
-            if (value != "") sub.Value = value;
-            this.AddContent(sub);
-            return sub;
-
-        }
+        #region фУНКЦИОНАЛ       
 
         #endregion
         #region Статичные функционал
@@ -130,7 +111,7 @@ namespace htyWEBlib.Tag
         public static TypeInput ToTypeInput (this string text)
         {
             Array inputs = Enum.GetValues(typeof(TypeInput));
-            foreach (var inp in inputs) {
+            foreach (TypeInput inp in inputs) {
                 if (inp.ToString() == text)
                     return inp;
             }

@@ -30,15 +30,60 @@ namespace htyWEBlib.Tag
             return tag;
         }
 
-        public TableTag AddTable()
+        public TableTag AddTable(string nameID = null)
         {
             TableTag table = new TableTag();
             this.AddContent((BuilderTag)table);
+            if (nameID != null) table.SetNameID(nameID);
             return table;
         }
         public void SetNameID (string text)
         {
             ID = Name = text;
+        }
+        public HTag AddLabel(string text, string nameID = null)
+        {
+            var label = HTag.Build(TypeTAG.label);
+            label.Text = text;
+            if (nameID != null) label.SetNameID(nameID);
+            return label;
+        }
+        public InputTag AddTextInput(string nameID = null, string value = null)
+        {
+            var text = new InputTag(TypeInput.text);
+            if (nameID != null) text.SetNameID(nameID);
+            if (value != null) text.Value = value;
+            this.AddContent(text);
+            return text;
+        }
+        public InputTag AddCheckInput(string nameID = null, string value = null)
+        {
+            var input = new InputTag(TypeInput.checkbox);
+            if (nameID != null) input.SetNameID(nameID);
+            if (value != null) input.Value = value;
+            this.AddContent(input);
+            return input;
+        }
+        public SelectTag AddSelect(string nameID = null)
+        {
+            var select = new SelectTag();
+            if (nameID != null) select.SetNameID(nameID);
+            this.AddContent(select);
+            return select;
+        }
+
+        public HTag AddSubmit(string value = null)
+        {
+            var sub = new InputTag(TypeInput.submit);
+            if (value != null) sub.Value = value;
+            this.AddContent(sub);
+            return sub;
+        }
+        public HTag AddBr()
+        {
+            var br = HTag.Build(TypeTAG.br);
+            this.AddContent(br);
+            return br;
         }
 
         #endregion
@@ -67,6 +112,17 @@ namespace htyWEBlib.Tag
 
     }
 
+    public class SelectTag:HTag
+    {
+        public HTag AddOption(string text, string value)
+        {
+            //<option value=\"{DidacticType.Definition}\">Определение</option>
+            var opt = HTag.Build(TypeTAG.option, text: text);
+            opt["value"] = value;
 
-
+        }
+        public SelectTag():base(TypeTAG.select)
+        {            
+        }
+    }
 }
