@@ -119,7 +119,8 @@ namespace htyWEBlib.Tag
             //<option value=\"{DidacticType.Definition}\">Определение</option>
             var opt = HTag.Build(TypeTAG.option, text: text);
             opt["value"] = value;
-
+            this.AddContent(opt);
+            return opt;
         }
         public SelectTag():base(TypeTAG.select)
         {            
