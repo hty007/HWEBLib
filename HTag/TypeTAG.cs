@@ -33,7 +33,8 @@
         label,
         br,
         select,
-        option
+        option,
+        b
     }
 
 }

@@ -2,7 +2,7 @@
 
 namespace htyWEBlib.Tag
 {
-    public class BodyTag : BuilderTag
+    public class BodyTag : HTag
     {
         public BodyTag() : base(TypeTAG.body)
         {

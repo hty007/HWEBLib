@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace htyWEBlib.Tag
 {
@@ -80,7 +78,7 @@ namespace htyWEBlib.Tag
             }
 
             if (Content.Count == 0) // Короткий тег   
-                result = string.Format("<{0}{1} />", Tag.ToString(), atribut);
+                result = string.Format("<{0} {1} />", Tag.ToString(), atribut);
             else
             {// Длинный тег
                 string content = GetContent();

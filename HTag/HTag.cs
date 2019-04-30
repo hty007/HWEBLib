@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace htyWEBlib.Tag
 {
@@ -15,10 +13,11 @@ namespace htyWEBlib.Tag
         public string Name { get => this["name"]; set => this["name"] = value; }
         #endregion
         #region Функционал
-        public void Add(TypeTAG type, string text, string cssClass = "", string id = "")
+        public void Add(TypeTAG type, string text, string cssClass = null, string id = null)
         {
             var tag = HTag.Build(type, text, cssClass);
-            tag.ID = id;
+            if (id != null) tag.ID = id;
+
             this.AddContent((BuilderTag)tag);
 
         }
@@ -85,14 +84,55 @@ namespace htyWEBlib.Tag
             this.AddContent(br);
             return br;
         }
+        public HTag AddH(int index, string text, string css = null)
+        {
+            TypeTAG tag;
+            switch (index)
+            {
+                case 1: tag = TypeTAG.h1; break;
+                case 2: tag = TypeTAG.h2; break;
+                case 3: tag = TypeTAG.h3; break;
+                case 4: tag = TypeTAG.h4; break;
+                case 5: tag = TypeTAG.h5; break;
+                case 6: tag = TypeTAG.h6; break;
+                default: throw new ArgumentException("Не пойти ли тебе в задницу, с такими аргументами?");
+            }
+            var hx = HTag.Build(tag);
+            hx.Text = text;
+            if (css != null) hx.CSSClass = css;
+            this.AddContent(hx);
+            return hx;
+        }
+        public HTag AddDiv(string css = null)
+        {
+            var div = HTag.Build(TypeTAG.div); 
+            if (css != null) div.CSSClass = css;
+            this.AddContent(div);
+            return div;
+        }
+        public HTag AddP(string text = null, string css = null)
+        {
+            var tag = HTag.Build(TypeTAG.p);
+            if (css != null) tag.CSSClass = css;
+            if (text != null) tag.AddText(text);
+            this.AddContent(tag);
+            return tag;
+        }
+        public HTag AddA(string text, string path)
+        {
+            var tag = HTag.Tag_a(path, text);
+                        
+            this.AddContent(tag);
+            return tag;
+        }
 
         #endregion
         #region Статик функции
-        public static HTag Build(TypeTAG p, string text, string cssClass = "")
+        public static HTag Build(TypeTAG p, string text, string cssClass = null)
         {
             var tag =Build(p);
             tag.Text = text;
-            if (cssClass != "")
+            if (cssClass != null)
             {
                 tag["class"] = cssClass;
             }
@@ -108,6 +148,7 @@ namespace htyWEBlib.Tag
             return tagA;
             //throw new NotImplementedException();
         }
+
         #endregion
 
     }
