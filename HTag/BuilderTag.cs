@@ -131,11 +131,12 @@ namespace htyWEBlib.Tag
             foreach (BuilderTag t in tags)
                 Content.Add(t);
         }
+        /// <summary>Добавляет текст Null-тегом, после чего ещё можно добавить</summary>
 
         public void AddText(string text)
         {
-            BuilderTag tag = new BuilderTag(TypeTAG.NULL, text);
-            Content.Add(tag);
+            BuilderTag nulltag = new BuilderTag(TypeTAG.NULL, text);
+            Content.Add(nulltag);
         }
         static public BuilderTag Build(TypeTAG type) => new BuilderTag(type);
 
