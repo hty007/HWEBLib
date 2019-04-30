@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>htyWEBlib</RootNamespace>
     <AssemblyName>htyWEBlib</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <Authors>Мирошников Ренат</Authors>
@@ -53,6 +53,7 @@
     <Compile Include="HTag\TypeTAG.cs" />
     <Compile Include="HTag\HeadTag.cs" />
     <Compile Include="HTag\BodyTag.cs" />
+    <Compile Include="HTag\UlTag.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
