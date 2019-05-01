@@ -126,7 +126,7 @@ namespace htyWEBlib.Tag
         {
             var tag = new UlTag();
             if (css != null) tag.CSSClass = css;
-            if (nameID != null) tag.SetNameID(null);
+            if (nameID != null) tag.SetNameID(nameID);
             this.AddContent(tag);
             return tag;
         }
@@ -136,12 +136,12 @@ namespace htyWEBlib.Tag
 
         #endregion
         #region Статик функции
-        private static HTag Build(TypeTAG type, string text = null, string css = null, string nameID=null )
+        public static HTag Build(TypeTAG type, string text = null, string css = null, string nameID=null )
         {
             HTag tag = new HTag(type);
             if (text != null) tag.AddText(text);
             if (css != null) tag.CSSClass = css;
-            if (nameID != null) tag.SetNameID(null);
+            if (nameID != null) tag.SetNameID(nameID);
             return tag;
         }
         public static HTag Tag_a(string path, string text, string style=null)
@@ -163,7 +163,7 @@ namespace htyWEBlib.Tag
         public HTag AddOption(string text, string value)
         {
             //<option value=\"{DidacticType.Definition}\">Определение</option>
-            var opt = HTag.Build(TypeTAG.option, text: text);
+            HTag opt = HTag.Build(TypeTAG.option, text: text);
             opt["value"] = value;
             this.AddContent(opt);
             return opt;

@@ -36,7 +36,9 @@
         option,
         b,
         ul,
-        li
+        li,
+        nav,
+        header
     }
 
 }

@@ -73,7 +73,7 @@ namespace htyWEBlib.Tag
             if (Text != null && Text != "")
             {
                 string br = (Text.Length > 30) ? "\n" : "";
-                result = string.Format("<{0}{1}>{3}{2}{3}</{0}>", Tag.ToString(), atribut, Text, br);
+                result = string.Format("<{0} {1}>{3}{2}{3}</{0}>", Tag.ToString(), atribut, Text, br);
                 return result;
             }
 
@@ -83,7 +83,7 @@ namespace htyWEBlib.Tag
             {// Длинный тег
                 string content = GetContent();
                 //string br = (content.Length > 30) ? "\n" : "";
-                result = string.Format("<{0}{1}>{2}{3}</{0}>", Tag.ToString(), atribut, content,"\n");
+                result = string.Format("<{0} {1}>{2}{3}</{0}>", Tag.ToString(), atribut, content,"\n");
             }
             return result;
         }
@@ -106,7 +106,7 @@ namespace htyWEBlib.Tag
                 if (atr.Value != null)
                     atribut.Append(string.Format(" {0}=\"{1}\"", atr.Key, atr.Value));
                 else
-                    atribut.Append(atr.Key);
+                    atribut.Append(" "+atr.Key);
             }
             return atribut.ToString();
         }
@@ -138,7 +138,7 @@ namespace htyWEBlib.Tag
             BuilderTag nulltag = new BuilderTag(TypeTAG.NULL, text);
             Content.Add(nulltag);
         }
-        static public BuilderTag Build(TypeTAG type) => new BuilderTag(type);
+        //static public BuilderTag Build(TypeTAG type) => new BuilderTag(type);
 
         #endregion
     }

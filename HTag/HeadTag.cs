@@ -69,6 +69,7 @@ namespace htyWEBlib.Tag
 
             var script = HTag.Build(TypeTAG.script);
             script["src"] = "";
+            script.Text = "  ";
             ListHead.Add(script);
 
             ListHeadUser = new List<BuilderTag>();

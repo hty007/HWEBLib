@@ -18,8 +18,7 @@
         public HTag AddLi_A(string caption, string href, string nameID = null, string style = null)
         {
             HTag tag = (HTag)Build(TypeTAG.li);
-            tag.AddContent(HTag.Tag_a(href, caption, style: style));
-            tag.AddA(href, caption, css: style);
+            tag.AddA(caption, href,  css: style);
             if (nameID != null) tag.SetNameID(nameID);
             this.AddContent(tag);
             return tag;
