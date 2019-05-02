@@ -34,11 +34,7 @@
         br,
         select,
         option,
-        b,
-        ul,
-        li,
-        nav,
-        header
+        b
     }
 
 }
