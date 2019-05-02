@@ -15,20 +15,18 @@ namespace htyWEBlib.Tag
         #region Функционал
         public void Add(TypeTAG type, string text, string cssClass = null, string id = null)
         {
-            var tag = HTag.Build(type, text, cssClass);
+            var tag = HTag.Build(type, text:text, css: cssClass);
             if (id != null) tag.ID = id;
 
             this.AddContent((BuilderTag)tag);
 
         }
-
         public HTag Add(TypeTAG type)
         {
             var tag = HTag.Build(type);
             this.AddContent((BuilderTag)tag);
             return tag;
         }
-
         public TableTag AddTable(string nameID = null)
         {
             TableTag table = new TableTag();
@@ -70,7 +68,6 @@ namespace htyWEBlib.Tag
             this.AddContent(select);
             return select;
         }
-
         public HTag AddSubmit(string value = null)
         {
             var sub = new InputTag(TypeInput.submit);
@@ -97,68 +94,76 @@ namespace htyWEBlib.Tag
                 case 6: tag = TypeTAG.h6; break;
                 default: throw new ArgumentException("Не пойти ли тебе в задницу, с такими аргументами?");
             }
-            var hx = HTag.Build(tag);
-            hx.Text = text;
-            if (css != null) hx.CSSClass = css;
-            this.AddContent(hx);
-            return hx;
+            var tagH = HTag.Build(tag,css:css);
+            tagH.Text = text;
+            this.AddContent(tagH);
+            return tagH;
         }
         public HTag AddDiv(string css = null)
         {
-            var div = HTag.Build(TypeTAG.div); 
-            if (css != null) div.CSSClass = css;
+            var div = HTag.Build(TypeTAG.div, css: css); 
             this.AddContent(div);
             return div;
         }
         public HTag AddP(string text = null, string css = null)
         {
-            var tag = HTag.Build(TypeTAG.p);
-            if (css != null) tag.CSSClass = css;
-            if (text != null) tag.AddText(text);
+            var tag = HTag.Build(TypeTAG.p, text:text, css: css);
             this.AddContent(tag);
             return tag;
         }
-        public HTag AddA(string text, string path)
+        public HTag AddA(string text, string path, string css = null)
         {
             var tag = HTag.Tag_a(path, text);
-                        
+            if (css != null) tag.CSSClass = css;
             this.AddContent(tag);
             return tag;
         }
+        /// <summary>Добовляет список</summary>
+        /// <returns>ссылка на список</returns>
+        /// <param name="css">Css</param>
+        /// <param name="nameID">Name identifier.</param>
+        public UlTag AddUl(string css =null, string nameID = null)
+        {
+            var tag = new UlTag();
+            if (css != null) tag.CSSClass = css;
+            if (nameID != null) tag.SetNameID(nameID);
+            this.AddContent(tag);
+            return tag;
+        }
+
+
+
 
         #endregion
         #region Статик функции
-        public static HTag Build(TypeTAG p, string text, string cssClass = null)
+        public static HTag Build(TypeTAG type, string text = null, string css = null, string nameID=null )
         {
-            var tag =Build(p);
-            tag.Text = text;
-            if (cssClass != null)
-            {
-                tag["class"] = cssClass;
-            }
+            HTag tag = new HTag(type);
+            if (text != null) tag.AddText(text);
+            if (css != null) tag.CSSClass = css;
+            if (nameID != null) tag.SetNameID(nameID);
             return tag;
         }
-        public new static HTag Build(TypeTAG type) => new HTag(type);
-
-        public static HTag Tag_a(string path, string text)
+        public static HTag Tag_a(string path, string text, string style=null)
         {
             HTag tagA = Build(TypeTAG.a);
             tagA["href"] = path;
             tagA.Text = text;
+            if (style != null) tagA.CSSClass = style;
             return tagA;
             //throw new NotImplementedException();
         }
-
         #endregion
 
     }
+
 
     public class SelectTag:HTag
     {
         public HTag AddOption(string text, string value)
         {
             //<option value=\"{DidacticType.Definition}\">Определение</option>
-            var opt = HTag.Build(TypeTAG.option, text: text);
+            HTag opt = HTag.Build(TypeTAG.option, text: text);
             opt["value"] = value;
             this.AddContent(opt);
             return opt;
