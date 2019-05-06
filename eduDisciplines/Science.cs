@@ -6,7 +6,7 @@ namespace htyWEBlib.eduDisciplines
 {
     public abstract class ScienceNameID: HData, IComparable
     {
-        public ScienceNameID(int cI = 1, int cD = 0, int cB = 0, int cS = 1) : base(cI, cD, cB, cS)
+        public ScienceNameID(int cI = 4, int cD = 0, int cB = 0, int cS = 1) : base(cI, cD, cB, cS)
         {
         content = new List<ScienceNameID>(); 
         }
@@ -34,11 +34,24 @@ namespace htyWEBlib.eduDisciplines
             return string.Format("{0} {1}", Code, Name);
         }
 
+        public virtual void Add(ScienceNameID science)
+        {
+            if (content.Find(n => n.ID == science.ID)!= null)
+                throw new ArgumentException();
+            content.Add(science);
+            content.Sort();            
+        }
+
     }
     public class Science : ScienceNameID
     {
-        public Section this[int index] { get => (Section)content[index]; }
-
+        public Section this[int index]
+        {
+            get
+            {
+                return (Section)content.Find(n=> n.ID==index);
+            }
+        }
 
         public Science(string name, int id):base(1,0,0,1)
         {
@@ -52,18 +65,37 @@ namespace htyWEBlib.eduDisciplines
         {
             return "";
         }
-    }
 
+        public void Add(string name, int id)
+        {
+            Section section = new Section(name, id);
+            section.ScienceID = ID;
+            Add(section);
+        }
+    }
     public class Section : ScienceNameID
     {
         public Section(): base(2,0,0,1)
         {
         }
 
+        public Section(string name, int id):this()
+        {
+            Name = name;
+            ID = id;
+        }
+
         public Subsection this[int index] { get => (Subsection)content[index]; }
         public int ScienceID { get => data_I[1]; set => data_I[1] = value; }
 
         public override string GetCode() => string.Format("{0}", ID + 1);
+
+        public void Add(string name, int id)
+        {
+            Subsection subsection = new Subsection(name, id);
+            subsection.SectionID = ID;
+            Add(subsection);
+        }
     }
 
     public class Subsection : ScienceNameID
@@ -73,30 +105,49 @@ namespace htyWEBlib.eduDisciplines
         public Subsection() : base(2, 0, 0, 1)
         {
         }
-        public int SectionID { get => data_I[1]; }
+
+        public Subsection(string name, int id) : this()
+        {
+            Name = name;
+            ID = id;
+        }
+
+        public int SectionID { get => data_I[1]; set => data_I[1] = value; }
 
         public override string GetCode()
         {
-            string.Format("{0}.{1}", SectionID ,ID + 1);
+            return string.Format("{0}.{1}", SectionID ,ID + 1);
         }
 
-        public void Add ()
+        public void Add(string name, int id)
+        {
+            Theme theme = new Theme(name, id);
+            theme.SectionID = SectionID;
+            theme.SubsectionID = ID;
+            Add(theme);
+        }
 
 
     }
 
     public class Theme : ScienceNameID
     {
-        public int SectionID { get => data_I[1]; }
-        public int SubsectionID { get => data_I[2]; }
+        public int SectionID { get => data_I[1]; set => data_I[1] = value; }
+        public int SubsectionID { get => data_I[2]; set => data_I[2] = value; }
 
         public Theme() : base(3, 0, 0, 1)
         {
         }
 
+        public Theme(string name, int id):this()
+        {
+            Name = name;
+            ID = id;
+        }
+
         public override string GetCode()
         {
-            string.Format("{0}.{1}.{2}", SectionID, SubsectionID,  ID + 1);
+            return string.Format("{0}.{1}.{2}", SectionID, SubsectionID,  ID + 1);
         }
     }
 }
