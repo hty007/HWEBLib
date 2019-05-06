@@ -27,6 +27,7 @@ namespace htyWEBlib.Tag
             this.AddContent((BuilderTag)tag);
             return tag;
         }
+        /// <summary>Добавить на страницу таблицу</summary>
         public TableTag AddTable(string nameID = null)
         {
             TableTag table = new TableTag();
@@ -34,10 +35,12 @@ namespace htyWEBlib.Tag
             if (nameID != null) table.SetNameID(nameID);
             return table;
         }
+        /// <summary>Установить ID и name тега </summary>
         public void SetNameID (string text)
         {
             ID = Name = text;
         }
+        /// <summary>Добавить на форму метку</summary>
         public HTag AddLabel(string text, string nameID = null)
         {
             var label = HTag.Build(TypeTAG.label);

@@ -54,9 +54,11 @@
     <Compile Include="HTag\HeadTag.cs" />
     <Compile Include="HTag\BodyTag.cs" />
     <Compile Include="HTag\UlTag.cs" />
+    <Compile Include="eduDisciplines\Science.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+    <Folder Include="eduDisciplines\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

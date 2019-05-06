@@ -28,7 +28,7 @@ namespace htyWEBlib.Tag
             }
             return row;
         }
-
+        /// <summary>Добавить строку в таблицу</summary>
         public TR_Tag AddTR()
         {
             var tr = new TR_Tag();
@@ -71,9 +71,16 @@ namespace htyWEBlib.Tag
             AddContent(td);
             return td;
         }
+
+        public TD_Tag AddTD_Text(string text)
+        {
+            var td = new TD_Tag{Text = text};
+            AddContent(td);
+            return td;
+        }
     }
 
-    public class TD_Tag:HTag
+    public class TD_Tag : HTag
     {
         public TD_Tag():base(TypeTAG.td)
         {
