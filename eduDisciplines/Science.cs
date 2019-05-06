@@ -116,7 +116,7 @@ namespace htyWEBlib.eduDisciplines
 
         public override string GetCode()
         {
-            return string.Format("{0}.{1}", SectionID ,ID + 1);
+            return string.Format("{0}.{1}", SectionID+1 ,ID + 1);
         }
 
         public void Add(string name, int id)
@@ -147,7 +147,7 @@ namespace htyWEBlib.eduDisciplines
 
         public override string GetCode()
         {
-            return string.Format("{0}.{1}.{2}", SectionID, SubsectionID,  ID + 1);
+            return string.Format("{0}.{1}.{2}", SectionID+1, SubsectionID+1,  ID + 1);
         }
     }
 }
