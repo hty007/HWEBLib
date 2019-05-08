@@ -1,4 +1,7 @@
-﻿namespace htyWEBlib.Tag
+﻿using System;
+using htyWEBlib.eduDisciplines;
+
+namespace htyWEBlib.Tag
 {
     public class UlTag : HTag
     {
@@ -22,7 +25,16 @@
             if (nameID != null) tag.SetNameID(nameID);
             this.AddContent(tag);
             return tag;
-        }
+        }        
 
+        public HTag AddLiTag(HTag content, string nameID = null, string style = null)
+        {
+            HTag tag = (HTag)Build(TypeTAG.li);
+            if (style != null) tag.CSSClass = style;
+            if (nameID != null) tag.SetNameID(nameID);
+            tag.AddContent(content);
+            this.AddContent(tag);
+            return tag;
+        }
     }
 }
