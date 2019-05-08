@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -6,7 +7,7 @@ using htyWEBlib.data;
 
 namespace htyWEBlib.eduDisciplines
 {
-    public class Science: IHData, IComparable
+    public class Science: IHData, IComparable, IEnumerable
     {
         
         /// <summary>Название </summary>
@@ -17,6 +18,7 @@ namespace htyWEBlib.eduDisciplines
         public Science this[int index] => content.Find(n => n.ID == index);
         public int Count { get => content.Count; }
         protected Science master;
+        public Science GetMaster() => master;
 
         public Science() => content = new List<Science>();
         public Science(string name, int id):this()
@@ -42,6 +44,21 @@ namespace htyWEBlib.eduDisciplines
             return code;
         }
 
+        public Science GetScience(string code)
+        {
+            if (GetCode() == code)
+                return this;
+            Science result = null;
+            foreach (Science s in content)
+            {                
+                result = s.GetScience(code);
+                if (result != null)
+                    break;
+            }
+            return result;
+            
+            //throw new NotImplementedException();
+        }
 
         public override string ToString()
         {
@@ -89,6 +106,11 @@ namespace htyWEBlib.eduDisciplines
                 item.Save(writer);
             }
 
+        }
+
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)content).GetEnumerator();
         }
     }
     
