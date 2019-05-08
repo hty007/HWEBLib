@@ -72,18 +72,25 @@ namespace htyWEBlib.Tag
 
             if (Text != null && Text != "")
             {
-                string br = (Text.Length > 30) ? "\n" : "";
-                result = string.Format("<{0} {1}>{3}{2}{3}</{0}>", Tag.ToString(), atribut, Text, br);
+                string br = (Text.Length > 50) ? "\n" : "";
+                result = string.Format("<{0}{1}>{3}{2}{3}</{0}>", Tag.ToString(), atribut, Text, br);
                 return result;
             }
 
             if (Content.Count == 0) // Короткий тег   
                 result = string.Format("<{0} {1} />", Tag.ToString(), atribut);
             else
-            {// Длинный тег
+            {// Длинный тег 
+                string br = "";
                 string content = GetContent();
-                //string br = (content.Length > 30) ? "\n" : "";
-                result = string.Format("<{0} {1}>{2}{3}</{0}>", Tag.ToString(), atribut, content,"\n");
+                if (Tag == TypeTAG.ul
+                    || Tag == TypeTAG.label
+                    || Tag == TypeTAG.form
+                    || Tag == TypeTAG.body
+                    || Tag == TypeTAG.table
+                    )
+                    br = "\n";
+                result = string.Format("<{0}{1}>{3}{2}</{0}>", Tag.ToString(), atribut, content, br);
             }
             return result;
         }
@@ -91,9 +98,33 @@ namespace htyWEBlib.Tag
         private string GetContent()
         {
             StringBuilder con = new StringBuilder();
-            foreach (BuilderTag co in Content)
+
+            for (int i = 0; i < Content.Count; i++)
             {
-                con.Append("\n"+co.ToString());
+                var tag = Content[i];
+
+                if (tag.Tag == TypeTAG.ul
+                    || tag.Tag == TypeTAG.label
+                    || tag.Tag == TypeTAG.form
+                    || tag.Tag == TypeTAG.body
+                    || tag.Tag == TypeTAG.table
+                    )                                    
+                    con.Append("\n");
+
+                con.Append(tag.ToString());
+
+                if (    tag.Tag == TypeTAG.meta
+                    || tag.Tag == TypeTAG.br                    
+                    || tag.Tag == TypeTAG.h1
+                    || tag.Tag == TypeTAG.li
+                    || tag.Tag == TypeTAG.title
+                    || tag.Tag == TypeTAG.p
+                    || tag.Tag == TypeTAG.link
+                    || tag.Tag == TypeTAG.td
+                    || tag.Tag == TypeTAG.tr
+                    || tag.Tag == TypeTAG.select
+                    || tag.Tag == TypeTAG.script)
+                    con.Append("\n");
             }
             return con.ToString();
         }

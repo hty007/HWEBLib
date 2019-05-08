@@ -38,7 +38,8 @@
         ul,
         li,
         nav,
-        header
+        header,
+        button
     }
 
 }

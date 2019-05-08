@@ -73,18 +73,22 @@ namespace htyWEBlib.Tag
             return select;
         }
 
-        public HTag AddScript(string stript)
+        public HTag AddScript(string stript = null, string fileName = null, string type = null)
         {
             var tag = HTag.Build(TypeTAG.script, stript);
+            if (fileName != null) tag["src"] = fileName;
+            if (type != null) tag["type"] = type;
             AddContent(tag);
             return tag;           
         }
 
         public static FormTag BuildForm(string action, string auto = "on", string enctype = null)
         {
-            FormTag tag = new FormTag();
-            tag.Action = action;
-            tag.Autocomplete = auto;
+            FormTag tag = new FormTag
+            {
+                Action = action,
+                Autocomplete = auto
+            };
             if (enctype != null) tag.Enctype = enctype;
 
             return tag;

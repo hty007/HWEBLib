@@ -27,9 +27,11 @@ namespace htyWEBlib.Tag
         /// <summary>Java Script </summary>
         public BuilderTag Script { get => ListHead[8]; set => ListHead[8] = value; }
 
-        public HTag AddScript(string stript)
+        public HTag AddScript(string stript = null, string fileName = null, string type = null)
         {
             var tag = HTag.Build(TypeTAG.script, stript);
+            if (fileName != null) tag["src"] = fileName;
+            if (type != null) tag["type"] = type;
             AddHead(tag);
             return tag;
         }
