@@ -44,6 +44,7 @@
     <Compile Include="data\HPantry.cs" />
     <Compile Include="data\IHData.cs" />
     <Compile Include="data\IHLines.cs" />
+    <Compile Include="HelpersTag\PhisicHelpers.cs" />
     <Compile Include="HTag\BuilderTag.cs" />
     <Compile Include="HTag\FormTag.cs" />
     <Compile Include="HTag\HtmlTag.cs" />
@@ -58,7 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
-    <Folder Include="eduDisciplines\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
