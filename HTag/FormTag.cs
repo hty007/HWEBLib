@@ -40,11 +40,11 @@ namespace htyWEBlib.Tag
         public FormTag(string metod = "post") : base(TypeTAG.form)
         { Metod = metod; }
 
-        public FormTag(string action, string enctype = "", string autocomplete = "", string metod = "post") : this(metod)
+        public FormTag(string action, string enctype = null, string autocomplete = null, string metod = "post") : this(metod)
         {
             Action = action;
-            if (enctype != "") Enctype = enctype;
-            if (autocomplete != "") Autocomplete = autocomplete;
+            if (enctype != null) Enctype = enctype;
+            if (autocomplete != null) Autocomplete = autocomplete;
         }
 
         #endregion

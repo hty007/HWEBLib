@@ -13,12 +13,13 @@ namespace htyWEBlib.Tag
         public string Name { get => this["name"]; set => this["name"] = value; }
         #endregion
         #region Функционал
-        public void Add(TypeTAG type, string text, string cssClass = null, string id = null)
+        public HTag Add(TypeTAG type, string text, string cssClass = null, string id = null)
         {
             var tag = HTag.Build(type, text:text, css: cssClass);
             if (id != null) tag.ID = id;
 
             this.AddContent((BuilderTag)tag);
+            return tag;
 
         }
         public HTag Add(TypeTAG type)
@@ -71,6 +72,25 @@ namespace htyWEBlib.Tag
             this.AddContent(select);
             return select;
         }
+
+        public HTag AddScript(string stript)
+        {
+            var tag = HTag.Build(TypeTAG.script, stript);
+            AddContent(tag);
+            return tag;           
+        }
+
+        public static FormTag BuildForm(string action, string auto = "on", string enctype = null)
+        {
+            FormTag tag = new FormTag();
+            tag.Action = action;
+            tag.Autocomplete = auto;
+            if (enctype != null) tag.Enctype = enctype;
+
+            return tag;
+            //throw new NotImplementedException();
+        }
+
         public HTag AddSubmit(string value = null)
         {
             var sub = new InputTag(TypeInput.submit);

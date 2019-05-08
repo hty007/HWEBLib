@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace htyWEBlib.Tag
 {
@@ -25,8 +26,15 @@ namespace htyWEBlib.Tag
         public BuilderTag CssStyle      { get => ListHead[7]; set => ListHead[7] = value; }
         /// <summary>Java Script </summary>
         public BuilderTag Script { get => ListHead[8]; set => ListHead[8] = value; }
-        
-        
+
+        public HTag AddScript(string stript)
+        {
+            var tag = HTag.Build(TypeTAG.script, stript);
+            AddHead(tag);
+            return tag;
+        }
+
+
         /// <summary>Путь к файлу Css стилей </summary>
         public string StyleFile { get => CssStyle["href"]; set => CssStyle["href"] = value; }
         /// <summary>Путь к файлу Java Script </summary>

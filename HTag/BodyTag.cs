@@ -7,9 +7,7 @@ namespace htyWEBlib.Tag
         public BodyTag() : base(TypeTAG.body)
         {
 
-        }
-
-
+        }        
     }
 
 
