@@ -48,6 +48,7 @@ namespace htyWEBlib.HelpersTag
                 tag.AddA(science.Name, pathName);
             return tag;
         }
+
         public static HTag ShowSciences(this Science science)
         {
             HTag tag = HTag.Build(TypeTAG.div);
@@ -80,6 +81,20 @@ namespace htyWEBlib.HelpersTag
             td3.AddSubmit("Ок");
 
             return form;
+        }
+
+        public static HTag ListScience(this Science sc)
+        {
+            if (sc.Count == 0)
+                return HTag.Build_Null(sc.ToString());
+
+            UlTag tag = HTag.BuildUlTag();
+            tag.AddP(sc.ToString());
+            foreach (Science s in sc)
+            {
+                tag.AddLiTag(s.ListScience());
+            }
+            return tag;
         }
 
 

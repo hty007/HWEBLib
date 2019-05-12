@@ -5,7 +5,7 @@ namespace htyWEBlib.Tag
     public class HTag : BuilderTag
     {
         public HTag(TypeTAG tag) : base(tag)
-        {}
+        { }
         #region поля и свойства
         //Поля и свойства
         public string ID { get => this["id"]; set => this["id"] = value; }
@@ -15,7 +15,7 @@ namespace htyWEBlib.Tag
         #region Функционал
         public HTag Add(TypeTAG type, string text, string cssClass = null, string id = null)
         {
-            var tag = HTag.Build(type, text:text, css: cssClass);
+            var tag = HTag.Build(type, text: text, css: cssClass);
             if (id != null) tag.ID = id;
 
             this.AddContent((BuilderTag)tag);
@@ -37,7 +37,7 @@ namespace htyWEBlib.Tag
             return table;
         }
         /// <summary>Установить ID и name тега </summary>
-        public void SetNameID (string text)
+        public void SetNameID(string text)
         {
             ID = Name = text;
         }
@@ -79,7 +79,7 @@ namespace htyWEBlib.Tag
             if (fileName != null) tag["src"] = fileName;
             if (type != null) tag["type"] = type;
             AddContent(tag);
-            return tag;           
+            return tag;
         }
 
         public static FormTag BuildForm(string action, string auto = "on", string enctype = null)
@@ -94,6 +94,8 @@ namespace htyWEBlib.Tag
             return tag;
             //throw new NotImplementedException();
         }
+
+
 
         public HTag AddSubmit(string value = null)
         {
@@ -121,26 +123,26 @@ namespace htyWEBlib.Tag
                 case 6: tag = TypeTAG.h6; break;
                 default: throw new ArgumentException("Не пойти ли тебе в задницу, с такими аргументами?");
             }
-            var tagH = HTag.Build(tag,css:css);
+            var tagH = HTag.Build(tag, css: css);
             tagH.Text = text;
             this.AddContent(tagH);
             return tagH;
         }
         public HTag AddDiv(string css = null)
         {
-            var div = HTag.Build(TypeTAG.div, css: css); 
+            var div = HTag.Build(TypeTAG.div, css: css);
             this.AddContent(div);
             return div;
         }
         public HTag AddP(string text = null, string css = null)
         {
-            var tag = HTag.Build(TypeTAG.p, text:text, css: css);
+            var tag = HTag.Build(TypeTAG.p, text: text, css: css);
             this.AddContent(tag);
             return tag;
         }
         public HTag AddA(string text, string path, string css = null)
         {
-            var tag = HTag.Tag_a(path, text);
+            var tag = HTag.Build_a(path, text);
             if (css != null) tag.CSSClass = css;
             this.AddContent(tag);
             return tag;
@@ -149,7 +151,7 @@ namespace htyWEBlib.Tag
         /// <returns>ссылка на список</returns>
         /// <param name="css">Css</param>
         /// <param name="nameID">Name identifier.</param>
-        public UlTag AddUl(string css =null, string nameID = null)
+        public UlTag AddUl(string css = null, string nameID = null)
         {
             var tag = new UlTag();
             if (css != null) tag.CSSClass = css;
@@ -163,7 +165,7 @@ namespace htyWEBlib.Tag
 
         #endregion
         #region Статик функции
-        public static HTag Build(TypeTAG type, string text = null, string css = null, string nameID=null )
+        public static HTag Build(TypeTAG type, string text = null, string css = null, string nameID = null)
         {
             HTag tag = new HTag(type);
             if (text != null) tag.AddText(text);
@@ -171,7 +173,14 @@ namespace htyWEBlib.Tag
             if (nameID != null) tag.SetNameID(nameID);
             return tag;
         }
-        public static HTag Tag_a(string path, string text, string style=null)
+
+        public static HTag Build_Null(string text = null)
+        {
+            HTag tag = new HTag(TypeTAG.NULL);
+            if (text != null) tag.Text =text;
+            return tag;
+        }
+        public static HTag Build_a(string path, string text, string style = null)
         {
             HTag tagA = Build(TypeTAG.a);
             tagA["href"] = path;
@@ -180,12 +189,18 @@ namespace htyWEBlib.Tag
             return tagA;
             //throw new NotImplementedException();
         }
+
+        public static UlTag BuildUlTag()
+        {
+            return new UlTag();
+        }
+
         #endregion
 
     }
 
 
-    public class SelectTag:HTag
+    public class SelectTag : HTag
     {
         public HTag AddOption(string text, string value)
         {
@@ -195,8 +210,8 @@ namespace htyWEBlib.Tag
             this.AddContent(opt);
             return opt;
         }
-        public SelectTag():base(TypeTAG.select)
-        {            
+        public SelectTag() : base(TypeTAG.select)
+        {
         }
     }
 }

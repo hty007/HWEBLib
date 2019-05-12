@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -43,7 +43,11 @@ namespace htyWEBlib.eduDisciplines
             string code = string.Join(".",ids.ToArray());
             return code;
         }
-
+        /// <summary>
+        /// Найти нужную тему 
+        /// </summary>
+        /// <returns>The science.</returns>
+        /// <param name="code">Нет проверки на null</param>
         public Science GetScience(string code)
         {
             if (GetCode() == code)
