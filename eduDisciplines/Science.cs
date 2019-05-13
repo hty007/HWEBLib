@@ -9,11 +9,12 @@ namespace htyWEBlib.eduDisciplines
 {
     public class Science: IHData, IComparable, IEnumerable
     {
-        
+        private int Visition = 2;
         /// <summary>Название </summary>
         public string Name { get; set; }
         /// <summary>Индивидуальный порядковый номер</summary>
         public int ID { get; set; }
+        public ScienceType Type { get; set }
         protected List<Science> content;
         public Science this[int index] => content.Find(n => n.ID == index);
         public int Count { get => content.Count; }
@@ -21,11 +22,13 @@ namespace htyWEBlib.eduDisciplines
         public Science GetMaster() => master;
 
         public Science() => content = new List<Science>();
-        public Science(string name, int id):this()
+        public Science(string name, int id, int vis = 2):this()
         {
             master = null;
             Name = name;
             ID = id;
+            Visition = vis;
+
         }
         public string GetCode(int premier = -1)
         {
@@ -110,8 +113,12 @@ namespace htyWEBlib.eduDisciplines
         }
         public void Save(BinaryWriter writer)
         {
-            writer.Write(ID);
-            writer.Write(Name);
+            writer.Write(Visition);
+            for (int i = 0; i < Visition; i++)
+            {
+                if (i == 0) { writer.Write(ID); continue; }
+                if (i == 1) { writer.Write(Name); continue; }
+            }
             writer.Write(content.Count);
             foreach (var item in content)
             {
@@ -124,6 +131,13 @@ namespace htyWEBlib.eduDisciplines
         {
             return ((IEnumerable)content).GetEnumerator();
         }
+    }
+
+    enum ScienceType
+    {
+        theme,
+        text,
+        formyle
     }
     
 }
