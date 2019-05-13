@@ -8,8 +8,10 @@
         public string Value { get => this["value"]; set => this["value"] = value; }
         #endregion
         #region конструкторы
-        public InputTag(TypeInput type) : base(TypeTAG.input)
+        public InputTag(TypeInput type, string value = null, string nameID = null) : base(TypeTAG.input)
         {
+            if (nameID != null) this.SetNameID(nameID);
+            if (value != null) this.Value = value;
             Type = type;
         }
         #endregion

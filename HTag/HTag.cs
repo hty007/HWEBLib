@@ -31,10 +31,10 @@ namespace htyWEBlib.Tag
         /// <summary>Добавить на страницу таблицу</summary>
         public TableTag AddTable(string nameID = null)
         {
-            TableTag table = new TableTag();
-            this.AddContent((BuilderTag)table);
-            if (nameID != null) table.SetNameID(nameID);
-            return table;
+            TableTag tag = new TableTag();
+            this.AddContent((BuilderTag)tag);
+            if (nameID != null) tag.SetNameID(nameID);
+            return tag;
         }
         /// <summary>Установить ID и name тега </summary>
         public void SetNameID(string text)
@@ -44,26 +44,29 @@ namespace htyWEBlib.Tag
         /// <summary>Добавить на форму метку</summary>
         public HTag AddLabel(string text, string nameID = null)
         {
-            var label = HTag.Build(TypeTAG.label);
-            label.Text = text;
-            if (nameID != null) label.SetNameID(nameID);
-            return label;
+            var tag = HTag.Build(TypeTAG.label);
+            tag.Text = text;
+            if (nameID != null) tag.SetNameID(nameID);
+            return tag;
         }
         public InputTag AddTextInput(string nameID = null, string value = null)
         {
-            var text = new InputTag(TypeInput.text);
-            if (nameID != null) text.SetNameID(nameID);
-            if (value != null) text.Value = value;
-            this.AddContent(text);
-            return text;
+            var tag = new InputTag(TypeInput.text, value: value, nameID: nameID);            
+            this.AddContent(tag);
+            return tag;
         }
+        public InputTag AddHiddenInput(string nameID = null, string value = null)
+        {
+            var tag = new InputTag(TypeInput.hidden, value: value, nameID: nameID);
+            this.AddContent(tag);
+            return tag;
+        }
+
         public InputTag AddCheckInput(string nameID = null, string value = null)
         {
-            var input = new InputTag(TypeInput.checkbox);
-            if (nameID != null) input.SetNameID(nameID);
-            if (value != null) input.Value = value;
-            this.AddContent(input);
-            return input;
+            var tag = new InputTag(TypeInput.checkbox, value: value, nameID: nameID);            
+            this.AddContent(tag);
+            return tag;
         }
         public SelectTag AddSelect(string nameID = null)
         {
@@ -110,7 +113,7 @@ namespace htyWEBlib.Tag
             this.AddContent(br);
             return br;
         }
-        public HTag AddH(int index, string text, string css = null)
+        public HTag AddH(int index, string text, string css = null, string nameID = null)
         {
             TypeTAG tag;
             switch (index)
@@ -123,20 +126,20 @@ namespace htyWEBlib.Tag
                 case 6: tag = TypeTAG.h6; break;
                 default: throw new ArgumentException("Не пойти ли тебе в задницу, с такими аргументами?");
             }
-            var tagH = HTag.Build(tag, css: css);
+            var tagH = HTag.Build(tag, css: css, nameID: nameID);
             tagH.Text = text;
             this.AddContent(tagH);
             return tagH;
         }
-        public HTag AddDiv(string css = null)
+        public HTag AddDiv(string css = null, string text = null, string nameID = null)
         {
-            var div = HTag.Build(TypeTAG.div, css: css);
+            var div = HTag.Build(TypeTAG.div, text: text, css: css, nameID: nameID);
             this.AddContent(div);
             return div;
         }
-        public HTag AddP(string text = null, string css = null)
+        public HTag AddP(string text = null, string css = null, string nameID = null)
         {
-            var tag = HTag.Build(TypeTAG.p, text: text, css: css);
+            var tag = HTag.Build(TypeTAG.p, text: text, css: css, nameID: nameID);            
             this.AddContent(tag);
             return tag;
         }

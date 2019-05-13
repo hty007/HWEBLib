@@ -1,10 +1,6 @@
 ﻿using htyWEBlib.eduDisciplines;
 using htyWEBlib.Tag;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace htyWEBlib.HelpersTag
 {
@@ -48,22 +44,23 @@ namespace htyWEBlib.HelpersTag
                 tag.AddA(science.Name, pathName);
             return tag;
         }
-
+        /// <summary>
+        /// Показать все подтемы в теме 
+        /// </summary>
+        /// <param name="science"></param>
+        /// <returns></returns>
         public static HTag ShowSciences(this Science science)
         {
-            HTag tag = HTag.Build(TypeTAG.div);
-            var head = HTag.Build(TypeTAG.h3);
-            head.AddContent(science.ShowTheme(primer: 1));
-            tag.AddContent(head);
+            HTag tag = HTag.Build(TypeTAG.div);            
             var ul = tag.AddUl();
             foreach (Science the in science)
-                ul.AddLiTag(the.ShowTheme(pathName: "/Home/Index?code=" + the.GetCode(), primer: 1));
+                ul.AddLiTag(the.ShowTheme(primer: 1));
             return tag;
         }
 
         public static HTag EditSciences(this Science science, string action)
         {
-            string nameID = string.Format("science-{0}", science.GetCode());
+            string nameID = string.Format("science");
             FormTag form = HTag.BuildForm(action);
             form.SetNameID(nameID);
             var tab = form.AddTable(nameID);
@@ -72,10 +69,11 @@ namespace htyWEBlib.HelpersTag
             var td1 = tr.AddTD();
             if (science.GetMaster() != null)
                 td1.AddText(science.GetMaster().GetCode());
-            td1.AddTextInput(nameID: "code-" + nameID, value: science.ID.ToString());
+            td1.AddTextInput(nameID: "ID", value: science.ID.ToString());
+            td1.AddHiddenInput(nameID:"master", value: science.GetMaster().GetCode());
 
             var td2 = tr.AddTD();
-            td2.AddTextInput(nameID: "name-" + nameID, value: science.Name);
+            td2.AddTextInput(nameID: "name", value: science.Name);
 
             var td3 = tr.AddTD();
             td3.AddSubmit("Ок");
@@ -96,6 +94,29 @@ namespace htyWEBlib.HelpersTag
             }
             return tag;
         }
+
+        public static void ParsForm(this Science sc, Science head, Dictionary<string, string> dic)
+        {
+            foreach (var e in dic)
+            {
+                switch (e.Key)
+                {
+                    case "ID":
+                        sc.ID = int.Parse(e.Value);
+                        break;
+                    case "name":
+                        sc.Name = e.Value;
+                        break;
+                    case "master":
+                        var code = e.Value;
+                        var master = head.GetScience(code);
+                        master.Add(sc);
+                        break;
+                }
+            }/**/
+            //throw new NotImplementedException();
+        }
+
 
 
 

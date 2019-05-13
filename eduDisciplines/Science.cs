@@ -64,6 +64,11 @@ namespace htyWEBlib.eduDisciplines
             //throw new NotImplementedException();
         }
 
+        public void SetMaster(Science master)
+        {
+            this.master = master;            
+        }
+
         public override string ToString()
         {
             return string.Format("{0} {1}", GetCode(1), Name);
@@ -77,6 +82,9 @@ namespace htyWEBlib.eduDisciplines
             science.master = this;
             content.Sort();            
         }
+
+        
+
         public void Add(string name, int id)
         {
             Science section = new Science(name, id);            
