@@ -1,5 +1,6 @@
 ﻿using htyWEBlib.eduDisciplines;
 using htyWEBlib.Tag;
+using System;
 using System.Collections.Generic;
 
 namespace htyWEBlib.HelpersTag
@@ -115,6 +116,27 @@ namespace htyWEBlib.HelpersTag
                 }
             }/**/
             //throw new NotImplementedException();
+        }
+
+
+        public static HTag Show(this Science s, string href = null, string style = null, string nameID = null)
+        {
+            HTag tag = HTag.Build(TypeTAG.div, css : style, nameID:nameID);
+            switch (s.Type)
+            {
+                case ScienceType.theme:
+                    tag.AddText(s.GetCode(1), "\t");
+                    tag.AddA(s.Name, href);
+                    break;
+                case ScienceType.text:
+                case ScienceType.formyle:
+                    tag.AddText(s.Name);
+                    break;
+                default:
+                    throw new ArgumentException($"Не известное значение {s.Type}");
+            }
+            return tag;
+
         }
 
 

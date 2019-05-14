@@ -8,28 +8,36 @@ using htyWEBlib.data;
 namespace htyWEBlib.eduDisciplines
 {
     public class Science: IHData, IComparable, IEnumerable
-    {
-        private int Visition = 2;
+    {        
         /// <summary>Название </summary>
         public string Name { get; set; }
         /// <summary>Индивидуальный порядковый номер</summary>
         public int ID { get; set; }
-        public ScienceType Type { get; set }
+        /// <summary>Тип отрывка</summary>
+        public ScienceType Type { get; set; }
+
         protected List<Science> content;
-        public Science this[int index] => content.Find(n => n.ID == index);
-        public int Count { get => content.Count; }
         protected Science master;
+        
+        public Science this[int index] => content.Find(n => n.ID == index);
+        /// <summary>Количество состовных частей</summary>
+        public int Count { get => content.Count; }
+        /// <summary>Получить на уровень выше</summary>
         public Science GetMaster() => master;
 
         public Science() => content = new List<Science>();
-        public Science(string name, int id, int vis = 2):this()
+        public Science(string name, int id, ScienceType type = ScienceType.theme):this()
         {
             master = null;
             Name = name;
             ID = id;
-            Visition = vis;
-
+            Type = type;
         }
+        /// <summary>
+        /// Получить код 
+        /// </summary>
+        /// <param name="premier">Сколько уровень срезать</param>
+        /// <returns>Строка с кодом</returns>
         public string GetCode(int premier = -1)
         {
             List<int> ids = new List<int>();
@@ -46,6 +54,12 @@ namespace htyWEBlib.eduDisciplines
             string code = string.Join(".",ids.ToArray());
             return code;
         }
+
+        public bool ContainIn(int id)
+        {
+            return null != content.Find(n => n.ID == id);
+        }
+
         /// <summary>
         /// Найти нужную тему 
         /// </summary>
@@ -85,12 +99,9 @@ namespace htyWEBlib.eduDisciplines
             science.master = this;
             content.Sort();            
         }
-
-        
-
-        public void Add(string name, int id)
+        public void Add(string name, int id, ScienceType type = ScienceType.theme)
         {
-            Science section = new Science(name, id);            
+            Science section = new Science(name, id, type);            
             Add(section);
         }
 
@@ -101,8 +112,18 @@ namespace htyWEBlib.eduDisciplines
         }
         public void Load(BinaryReader reader)
         {
-            ID = reader.ReadInt32();
-            Name = reader.ReadString();
+            Type = (ScienceType)reader.ReadInt32();
+            switch (Type)
+            {
+                case ScienceType.formyle:
+                case ScienceType.text:
+                case ScienceType.theme:
+                    ID = reader.ReadInt32();
+                    Name = reader.ReadString();
+                    break;
+                default:
+                    throw new ArgumentException($"Не предусмотрено: {Type}.");
+            }
             int count = reader.ReadInt32();
             for (int i = 0; i < count; i++)
             {
@@ -113,31 +134,54 @@ namespace htyWEBlib.eduDisciplines
         }
         public void Save(BinaryWriter writer)
         {
-            writer.Write(Visition);
-            for (int i = 0; i < Visition; i++)
+            writer.Write((int)Type);
+            switch (Type)
             {
-                if (i == 0) { writer.Write(ID); continue; }
-                if (i == 1) { writer.Write(Name); continue; }
-            }
+                case ScienceType.formyle:
+                case ScienceType.text:
+                case ScienceType.theme:
+                    writer.Write(ID);
+                    writer.Write(Name);
+                    break;
+                default:
+                    throw new ArgumentException($"Не предусмотрено: {Type}.");
+            }                
             writer.Write(content.Count);
             foreach (var item in content)
             {
                 item.Save(writer);
             }
-
         }
-
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)content).GetEnumerator();
         }
     }
 
-    enum ScienceType
+    public enum ScienceType
     {
         theme,
         text,
         formyle
+    }
+
+    public static class ScienceTypeHelper
+    {
+        public static string ToRus(this ScienceType type)
+        {
+            switch (type)
+            {
+                case ScienceType.formyle:return "Формула";
+                case ScienceType.text: return "Текст"; 
+                case ScienceType.theme: return "Тема";
+                default:
+                    throw new ArgumentException($"Не предусмотрено: {type}.");
+            }
+        }
+        public static ScienceType ToScienceType(this string text)
+        {
+            return (ScienceType)Enum.Parse(typeof(ScienceType), text);
+        }
     }
     
 }
