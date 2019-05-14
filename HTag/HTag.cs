@@ -107,6 +107,8 @@ namespace htyWEBlib.Tag
             this.AddContent(sub);
             return sub;
         }
+
+        /// <summary>Перенос на новую строку</summary>        
         public HTag AddBr()
         {
             var br = HTag.Build(TypeTAG.br);

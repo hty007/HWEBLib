@@ -61,7 +61,7 @@ namespace htyWEBlib.data
             return string.Format("{2}/{1}/{0}.{3}", nameFile,nameDir, Path, expansion);
         }
 
-        public static void SaveLines(string fullNameFile, params HLines[] lines)
+        public static void SaveLines(string fullNameFile, params IHStringData[] lines)
         {
             /*/string fullNamePath = GetName(nameFile, nameDir);
             if (!Directory.Exists(nameDir))// Создаем директорию!
@@ -73,7 +73,7 @@ namespace htyWEBlib.data
             }
         }
 
-        public static void LoadLines(string fullNameFile, params HLines[] lines)
+        public static void LoadLines(string fullNameFile, params IHStringData[] lines)
         {
             var result = new List<HLines>();
             /*string fullNameFile = GetName(nameFile, "lin");/**/

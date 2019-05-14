@@ -5,7 +5,7 @@ using System.IO;
 
 namespace htyWEBlib.data
 {
-    public class HLines : IEnumerable 
+    public class HLines : IEnumerable, IHStringData
     {
         #region Поля и свойства
         private string name;

@@ -119,26 +119,29 @@ namespace htyWEBlib.HelpersTag
         }
 
 
-        public static HTag Show(this Science s, string href = null, string style = null, string nameID = null)
+        public static HTag Show(this Science s, string href = null, bool code = true, string style = null, string nameID = null)
         {
             HTag tag = HTag.Build(TypeTAG.div, css : style, nameID:nameID);
-            switch (s.Type)
-            {
-                case ScienceType.theme:
-                    tag.AddText(s.GetCode(1), "\t");
-                    tag.AddA(s.Name, href);
-                    break;
-                case ScienceType.text:
-                case ScienceType.formyle:
-                    tag.AddText(s.Name);
-                    break;
-                default:
-                    throw new ArgumentException($"Не известное значение {s.Type}");
-            }
-            return tag;
 
+            if (code) tag.AddText(s.GetCode(1), "\t");
+            if (href != null)                 
+                tag.AddA(s.Name, href);
+            else tag.AddText(s.Name);
+                    
+            return tag;
         }
 
+        public static HTag ShowFormula(this Science s)
+        {
+            HTag tag = HTag.Build(TypeTAG.p, text:s.Name );
+
+            foreach (Science sc in s)
+            {
+                tag.AddBr();
+                tag.AddText(sc.Name);                
+            }
+            return tag;
+        }
 
 
 

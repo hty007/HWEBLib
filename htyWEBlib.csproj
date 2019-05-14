@@ -44,6 +44,7 @@
     <Compile Include="data\HPantry.cs" />
     <Compile Include="data\IHData.cs" />
     <Compile Include="data\IHLines.cs" />
+    <Compile Include="data\IHStringData.cs" />
     <Compile Include="HelpersTag\PhisicHelpers.cs" />
     <Compile Include="HTag\BuilderTag.cs" />
     <Compile Include="HTag\FormTag.cs" />

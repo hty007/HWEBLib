@@ -7,14 +7,19 @@ using htyWEBlib.data;
 
 namespace htyWEBlib.eduDisciplines
 {
-    public class Science: IHData, IComparable, IEnumerable
-    {        
+    public class Science: IHData, IComparable, IEnumerable, IHStringData
+    {
+        #region Поля и свойства
+
         /// <summary>Название </summary>
         public string Name { get; set; }
         /// <summary>Индивидуальный порядковый номер</summary>
         public int ID { get; set; }
         /// <summary>Тип отрывка</summary>
         public ScienceType Type { get; set; }
+        public DistributionType Distribution { get; set; }
+
+
 
         protected List<Science> content;
         protected Science master;
@@ -24,8 +29,14 @@ namespace htyWEBlib.eduDisciplines
         public int Count { get => content.Count; }
         /// <summary>Получить на уровень выше</summary>
         public Science GetMaster() => master;
+        #endregion
 
-        public Science() => content = new List<Science>();
+        #region Конструкторы
+        public Science()
+        {
+            content = new List<Science>();
+            Distribution = new DistributionType();
+        }
         public Science(string name, int id, ScienceType type = ScienceType.theme):this()
         {
             master = null;
@@ -33,6 +44,8 @@ namespace htyWEBlib.eduDisciplines
             ID = id;
             Type = type;
         }
+        #endregion
+        #region Функционал
         /// <summary>
         /// Получить код 
         /// </summary>
@@ -80,17 +93,18 @@ namespace htyWEBlib.eduDisciplines
             
             //throw new NotImplementedException();
         }
-
+        public void Delete(int id)
+        {            
+            for (int i = 0; i < Count; i++)
+            {
+                if (content[i].ID == id)
+                    content.RemoveAt(i);
+            }
+        }
         public void SetMaster(Science master)
         {
             this.master = master;            
         }
-
-        public override string ToString()
-        {
-            return string.Format("{0} {1}", GetCode(1), Name);
-        }
-
         public virtual void Add(Science science)
         {
             if (content.Find(n => n.ID == science.ID)!= null)
@@ -104,26 +118,58 @@ namespace htyWEBlib.eduDisciplines
             Science section = new Science(name, id, type);            
             Add(section);
         }
-
+        #endregion
+        #region Переопределения Интерфейсы и файлы
         public int CompareTo(object obj)
         {
             Science sc = (Science)obj;
             return ID.CompareTo(sc.ID);
         }
+        public override string ToString()
+        {
+            return string.Format("{0}", GetCode());
+        }
+        public IEnumerator GetEnumerator()
+        {
+            return ((IEnumerable)content).GetEnumerator();
+        }
+        private const string Separetor = "#!_!#";
+        public void Load(StreamReader sr)
+        {
+            var t = sr.ReadLine();
+            var item = t.Split(new [] { Separetor}, StringSplitOptions.RemoveEmptyEntries);
+            ID = int.Parse(item[0]);
+            Name = item[1];
+            Type = item[2].ToScienceType();
+            int count = int.Parse(item[3]);
+            Distribution.Decoder(item[4]);
+            for (int i = 0; i < count; i++)
+            {
+                Science sc = new Science();
+                sc.Load(sr);
+                //var s = (IHStringData)sc;
+                //s.Load(sr);
+                Add(sc);
+            }
+
+            //throw new NotImplementedException();
+        }
+        public void Save(StreamWriter sw)
+        {
+            string result = string.Join(Separetor, ID ,  Name, Type, Count, Distribution.Coder());
+            sw.WriteLine(result);
+            foreach (IHStringData sc in content)
+            {
+                sc.Save(sw);
+            }
+
+            //throw new NotImplementedException();
+        }
         public void Load(BinaryReader reader)
         {
-            Type = (ScienceType)reader.ReadInt32();
-            switch (Type)
-            {
-                case ScienceType.formyle:
-                case ScienceType.text:
-                case ScienceType.theme:
-                    ID = reader.ReadInt32();
-                    Name = reader.ReadString();
-                    break;
-                default:
-                    throw new ArgumentException($"Не предусмотрено: {Type}.");
-            }
+            Type = (ScienceType)reader.ReadInt32();            
+            ID = reader.ReadInt32();
+            Name = reader.ReadString();                    
             int count = reader.ReadInt32();
             for (int i = 0; i < count; i++)
             {
@@ -134,27 +180,70 @@ namespace htyWEBlib.eduDisciplines
         }
         public void Save(BinaryWriter writer)
         {
-            writer.Write((int)Type);
-            switch (Type)
-            {
-                case ScienceType.formyle:
-                case ScienceType.text:
-                case ScienceType.theme:
-                    writer.Write(ID);
-                    writer.Write(Name);
-                    break;
-                default:
-                    throw new ArgumentException($"Не предусмотрено: {Type}.");
-            }                
+            writer.Write((int)Type);            
+            writer.Write(ID);
+            writer.Write(Name);
+            Distribution.Save(writer);                    
             writer.Write(content.Count);
             foreach (var item in content)
             {
                 item.Save(writer);
             }
         }
-        public IEnumerator GetEnumerator()
+        #endregion
+
+        public class DistributionType : IHData
         {
-            return ((IEnumerable)content).GetEnumerator();
+            private bool[] data;
+            private static int Count = 7;
+            public bool this[int index] {
+                get {
+                    if (index < 7 || index > 11)
+                        return false;
+                    return data[index - 7];
+                }
+                set
+                {
+                    if (index >= 7 && index <= 11)
+                        data[index - 7] = value;
+                } }
+            public bool OGE9 { get => data[5]; set => data[5] = value; }
+            public bool OGE11 { get => data[6]; set => data[6] = value; }
+            public DistributionType()
+            {
+                data = new bool[Count];
+            }
+            public void Load(BinaryReader reader)
+            {                
+                for (int i = 0; i < Count; i++)
+                {
+                    data[i] = reader.ReadBoolean();
+                }
+            }
+            public void Save(BinaryWriter writer)
+            {
+                foreach (var b in data)
+                {
+                    writer.Write(b);
+                }
+            }
+            public string Coder()
+            {
+                char[] d = new char[Count];
+                for (int i = 0; i < Count; i++)
+                {
+                    d[i] = data[i] ? 't' : 'f';
+                }
+                return string.Concat(d);
+            }
+            public void Decoder(string code)
+            {
+                char[] d = code.ToCharArray();
+                for (int i = 0; i < Count; i++)
+                {
+                    data[i] = d[i] == 't';
+                }
+            }
         }
     }
 
@@ -162,7 +251,10 @@ namespace htyWEBlib.eduDisciplines
     {
         theme,
         text,
-        formyle
+        formyle,
+        subtheme,
+        section,
+        definition
     }
 
     public static class ScienceTypeHelper
@@ -174,6 +266,10 @@ namespace htyWEBlib.eduDisciplines
                 case ScienceType.formyle:return "Формула";
                 case ScienceType.text: return "Текст"; 
                 case ScienceType.theme: return "Тема";
+                case ScienceType.subtheme: return "Подтема";
+                case ScienceType.section: return "Раздел";
+                case ScienceType.definition: return "Определение";
+
                 default:
                     throw new ArgumentException($"Не предусмотрено: {type}.");
             }
