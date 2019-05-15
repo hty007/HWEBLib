@@ -165,11 +165,58 @@ namespace htyWEBlib.eduDisciplines
 
             //throw new NotImplementedException();
         }
+        public void LoadNew(BinaryReader reader)
+        {
+            int count = 0;
+            Pair pc = new Pair();
+            pc.Load(reader);
+            int c = pc.ValueInt;
+            for (int i = 0; i <c ; i++)
+            {
+                Pair p = new Pair(); p.Load(reader);
+                switch (p.Key)
+                {
+                    case "t": Type = p.ValueString.ToScienceType(); break;
+                    case "id": ID = p.ValueInt; break;
+                    case "n": Name = p.ValueString; break;
+                    case "d": Distribution.Decoder(p.ValueString); break;
+                    case "cc": count = p.ValueInt; break;
+                }
+            }            
+            for (int i = 0; i < count; i++)
+            {
+                Science item = new Science();
+                item.LoadNew(reader);
+                Add(item);
+            }
+        }
+        public void SaveNew(BinaryWriter writer)
+        {
+            Pair pc = new Pair("c",5);
+            Pair pt = new Pair("t", (int)Type);
+            Pair pid = new Pair("id", ID);
+            Pair pn = new Pair("n", Name);
+            Pair pdc = new Pair("d", Distribution.Coder());
+            Pair pcc = new Pair("cc", content.Count);
+
+            pc.Save(writer);
+            pt.Save(writer);
+            pid.Save(writer);
+            pn.Save(writer);
+            pdc.Save(writer);
+            pcc.Save(writer);
+
+            foreach (var item in content)
+            {
+                item.SaveNew(writer);
+            }
+        }
         public void Load(BinaryReader reader)
         {
             Type = (ScienceType)reader.ReadInt32();            
             ID = reader.ReadInt32();
-            Name = reader.ReadString();                    
+            Name = reader.ReadString();
+            Distribution.Load(reader);
             int count = reader.ReadInt32();
             for (int i = 0; i < count; i++)
             {
@@ -191,11 +238,10 @@ namespace htyWEBlib.eduDisciplines
             }
         }
         #endregion
-
         public class DistributionType : IHData
         {
             private bool[] data;
-            private static int Count = 7;
+            public const int Count = 7;
             public bool this[int index] {
                 get {
                     if (index < 7 || index > 11)
@@ -246,7 +292,6 @@ namespace htyWEBlib.eduDisciplines
             }
         }
     }
-
     public enum ScienceType
     {
         theme,
@@ -256,7 +301,6 @@ namespace htyWEBlib.eduDisciplines
         section,
         definition
     }
-
     public static class ScienceTypeHelper
     {
         public static string ToRus(this ScienceType type)
@@ -278,6 +322,5 @@ namespace htyWEBlib.eduDisciplines
         {
             return (ScienceType)Enum.Parse(typeof(ScienceType), text);
         }
-    }
-    
+    }    
 }

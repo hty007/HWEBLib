@@ -85,13 +85,13 @@ namespace htyWEBlib.HelpersTag
         public static HTag ListScience(this Science sc)
         {
             if (sc.Count == 0)
-                return HTag.Build_Null(sc.ToString());
+                return HTag.Build(TypeTAG.p, sc.GetCode() + " - " + sc.Name);
 
             UlTag tag = HTag.BuildUlTag();
-            tag.AddP(sc.ToString());
+            tag.AddP(sc.GetCode()+" - "+ sc.Name);
             foreach (Science s in sc)
             {
-                tag.AddLiTag(s.ListScience());
+                tag.AddTegs(s.ListScience());
             }
             return tag;
         }

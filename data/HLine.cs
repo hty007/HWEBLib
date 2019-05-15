@@ -5,7 +5,7 @@ using System.IO;
 
 namespace htyWEBlib.data
 {
-    public class HLines : IEnumerable, IHStringData
+    public class HLines : IEnumerable, IHStringData,IHData
     {
         #region Поля и свойства
         private string name;
@@ -74,7 +74,6 @@ namespace htyWEBlib.data
                 data.Add(new Pair(buf));
             }            
         }
-
         public void Save(StreamWriter sw)
         {
             sw.WriteLine($"[{name}]");
@@ -84,20 +83,35 @@ namespace htyWEBlib.data
             }
             sw.WriteLine("end");
         }
-
         public IEnumerator GetEnumerator()
         {
             return ((IEnumerable)data).GetEnumerator();
         }
-
-
-
-
+        public void Load(BinaryReader reader)
+        {
+            name = reader.ReadString();
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                var p = new Pair();
+                p.Load(reader);
+                data.Add(p);
+            }            
+        }
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(name);
+            writer.Write(Count);
+            for (int i = 0; i < Count; i++)
+            {
+                data[i].Save(writer);
+            }
+        }
         #endregion
 
     }
 
-    public class Pair
+    public class Pair: IHData
     {
         private string key;
         private string value;
@@ -114,7 +128,7 @@ namespace htyWEBlib.data
             Key = key;
             this.value = value;
         }
-
+        public Pair() : this("","") { }
         public Pair(string key, int value):this(key, value.ToString()) { }
         public Pair(string key, bool value) : this(key, value.ToString()) { }
         public Pair(string key, double value) : this(key, value.ToString()) { }
@@ -128,6 +142,18 @@ namespace htyWEBlib.data
                 throw new ArgumentException("Должно быть пара значений");
             key = pair[0];
             value = pair[1];
+        }
+
+        public void Load(BinaryReader reader)
+        {
+            key = reader.ReadString();
+            value = reader.ReadString();
+        }
+
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(key);
+            writer.Write(value);
         }
     }
 }
