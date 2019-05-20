@@ -18,12 +18,8 @@ namespace htyWEBlib.eduDisciplines
         /// <summary>Тип отрывка</summary>
         public ScienceType Type { get; set; }
         public DistributionType Distribution { get; set; }
-
-
-
         protected List<Science> content;
-        protected Science master;
-        
+        protected Science master;        
         public Science this[int index] => content.Find(n => n.ID == index);
         /// <summary>Количество состовных частей</summary>
         public int Count { get => content.Count; }
@@ -53,6 +49,8 @@ namespace htyWEBlib.eduDisciplines
         /// <returns>Строка с кодом</returns>
         public string GetCode(int premier = -1)
         {
+            if (premier == -1)
+                return "";
             List<int> ids = new List<int>();
             ids.Add(ID);
             var sc = master;
@@ -61,9 +59,8 @@ namespace htyWEBlib.eduDisciplines
                 ids.Add(sc.ID);
                 sc = sc.master;
             }
-            ids.Reverse();
-            if (premier != -1)
-                ids.RemoveRange(0, premier);
+            ids.Reverse();            
+            ids.RemoveRange(0, premier);
             string code = string.Join(".",ids.ToArray());
             return code;
         }
@@ -80,7 +77,7 @@ namespace htyWEBlib.eduDisciplines
         /// <param name="code">Нет проверки на null</param>
         public Science GetScience(string code)
         {
-            if (GetCode() == code)
+            if (GetCode(0) == code)
                 return this;
             Science result = null;
             foreach (Science s in content)
@@ -127,7 +124,7 @@ namespace htyWEBlib.eduDisciplines
         }
         public override string ToString()
         {
-            return string.Format("{0}", GetCode());
+            return string.Format("{0}", GetCode(0));
         }
         public IEnumerator GetEnumerator()
         {

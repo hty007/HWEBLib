@@ -46,16 +46,17 @@ namespace htyWEBlib.HelpersTag
             return tag;
         }
         /// <summary>
-        /// Показать все подтемы в теме 
+        /// Показать подтему 
         /// </summary>
         /// <param name="science"></param>
         /// <returns></returns>
         public static HTag ShowSciences(this Science science)
         {
-            HTag tag = HTag.Build(TypeTAG.div);            
+            HTag tag = HTag.Build(TypeTAG.div);
+            tag.AddContent(science.ShowTheme());
             var ul = tag.AddUl();
             foreach (Science the in science)
-                ul.AddLiTag(the.ShowTheme(primer: 1));
+                ul.AddLiTag(the.ShowTheme());
             return tag;
         }
 
@@ -69,9 +70,9 @@ namespace htyWEBlib.HelpersTag
 
             var td1 = tr.AddTD();
             if (science.GetMaster() != null)
-                td1.AddText(science.GetMaster().GetCode());
+                td1.AddText(science.GetMaster().GetCode(0));
             td1.AddTextInput(nameID: "ID", value: science.ID.ToString());
-            td1.AddHiddenInput(nameID:"master", value: science.GetMaster().GetCode());
+            td1.AddHiddenInput(nameID:"master", value: science.GetMaster().GetCode(0));
 
             var td2 = tr.AddTD();
             td2.AddTextInput(nameID: "name", value: science.Name);
@@ -85,10 +86,10 @@ namespace htyWEBlib.HelpersTag
         public static HTag ListScience(this Science sc)
         {
             if (sc.Count == 0)
-                return HTag.Build(TypeTAG.p, sc.GetCode() + " - " + sc.Name);
+                return HTag.Build(TypeTAG.p, sc.GetCode(0) + " - " + sc.Name);
 
             UlTag tag = HTag.BuildUlTag();
-            tag.AddP(sc.GetCode()+" - "+ sc.Name);
+            tag.AddP(sc.GetCode(0)+" - "+ sc.Name);
             foreach (Science s in sc)
             {
                 tag.AddTegs(s.ListScience());
