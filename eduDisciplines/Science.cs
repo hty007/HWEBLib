@@ -190,17 +190,21 @@ namespace htyWEBlib.eduDisciplines
         public void SaveNew(BinaryWriter writer)
         {
             Pair pc = new Pair("c",5);
-            Pair pt = new Pair("t", (int)Type);
-            Pair pid = new Pair("id", ID);
-            Pair pn = new Pair("n", Name);
-            Pair pdc = new Pair("d", Distribution.Coder());
-            Pair pcc = new Pair("cc", content.Count);
-
             pc.Save(writer);
+
+            Pair pt = new Pair("t", (int)Type);
             pt.Save(writer);
+
+            Pair pid = new Pair("id", ID);
             pid.Save(writer);
+
+            Pair pn = new Pair("n", Name);
             pn.Save(writer);
+
+            Pair pdc = new Pair("d", Distribution.Coder());
             pdc.Save(writer);
+
+            Pair pcc = new Pair("cc", content.Count);            
             pcc.Save(writer);
 
             foreach (var item in content)
@@ -286,6 +290,28 @@ namespace htyWEBlib.eduDisciplines
                 {
                     data[i] = d[i] == 't';
                 }
+            }
+            public override string ToString()
+            {
+                StringBuilder res = new StringBuilder();
+                for (int i = 7; i < 12; i++)
+                    if (this[i])
+                    {
+                        if (res.Length != 0) res.Append(", ");
+                        res.Append(i.ToString());
+                    }                
+                
+                if (OGE9)
+                {
+                    if (res.Length != 0) res.Append(", ");
+                    res.Append("ОГЭ9");
+                }                
+                if (OGE11)
+                {
+                    if (res.Length != 0) res.Append(", ");
+                    res.Append("ОГЭ11");
+                }
+                return res.ToString();
             }
         }
     }
