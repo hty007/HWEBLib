@@ -102,6 +102,15 @@ namespace htyWEBlib.eduDisciplines
         {
             this.master = master;            
         }
+
+        public void ReIndex()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                content[i].ID = i+1;
+            }
+        }
+
         public virtual void Add(Science science)
         {
             if (content.Find(n => n.ID == science.ID)!= null)

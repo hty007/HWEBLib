@@ -53,10 +53,10 @@ namespace htyWEBlib.HelpersTag
         public static HTag ShowSciences(this Science science)
         {
             HTag tag = HTag.Build(TypeTAG.div);
-            tag.AddContent(science.ShowTheme());
+            tag.AddContent(HTag.Build(TypeTAG.b, science.Name));
             var ul = tag.AddUl();
             foreach (Science the in science)
-                ul.AddLiTag(the.ShowTheme());
+                ul.AddLiText(the.Name);
             return tag;
         }
 
