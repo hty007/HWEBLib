@@ -51,8 +51,10 @@ namespace htyWEBlib.eduDisciplines
         {
             if (premier == -1)
                 return "";
-            List<int> ids = new List<int>();
-            ids.Add(ID);
+            List<int> ids = new List<int>
+            {
+                ID
+            };
             var sc = master;
             while (sc != null)
             {
@@ -248,10 +250,13 @@ namespace htyWEBlib.eduDisciplines
             }
         }
         #endregion
-        public class DistributionType : IHData
+        
+    }
+    public class DistributionType : IHData
         {
-            private bool[] data;
             public const int Count = 7;
+
+            private bool[] data;            
             public bool this[int index] {
                 get {
                     if (index < 7 || index > 11)
@@ -323,7 +328,6 @@ namespace htyWEBlib.eduDisciplines
                 return res.ToString();
             }
         }
-    }
     public enum ScienceType
     {
         theme,
