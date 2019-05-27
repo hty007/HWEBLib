@@ -115,6 +115,7 @@ namespace htyWEBlib.data
     {
         private string key;
         private string value;
+
         
         public string Key { get => key; set => key = value; }
         public string ValueString { get => value; set => this.value = value; }

@@ -1,6 +1,5 @@
 ﻿using htyWEBlib.eduDisciplines;
 using htyWEBlib.Tag;
-using System;
 using System.Collections.Generic;
 
 namespace htyWEBlib.HelpersTag
@@ -26,12 +25,12 @@ namespace htyWEBlib.HelpersTag
         /// <param name="pathName">нужна ли ссылка для названия, если нужна путь</param>
         /// <param name="primer">сколько "шагов" срезать в коде</param>
         /// <returns></returns>
-        public static HTag ShowTheme(this Science science, string pathCode = null, string pathName = null, int primer = - 1)
+        public static HTag ShowTheme(this Science science, string pathCode = null, string pathName = null, int primer = -1)
         {
             HTag tag = HTag.Build(TypeTAG.div);
             // Код
             if (science.GetCode(primer) != "")
-            { 
+            {
                 if (pathCode == null)
                     tag.AddText(science.GetCode(primer));
                 else
@@ -72,7 +71,7 @@ namespace htyWEBlib.HelpersTag
             if (science.GetMaster() != null)
                 td1.AddText(science.GetMaster().GetCode(0));
             td1.AddTextInput(nameID: "ID", value: science.ID.ToString());
-            td1.AddHiddenInput(nameID:"master", value: science.GetMaster().GetCode(0));
+            td1.AddHiddenInput(nameID: "master", value: science.GetMaster().GetCode(0));
 
             var td2 = tr.AddTD();
             td2.AddTextInput(nameID: "name", value: science.Name);
@@ -89,7 +88,7 @@ namespace htyWEBlib.HelpersTag
                 return HTag.Build(TypeTAG.p, sc.GetCode(0) + " - " + sc.Name);
 
             UlTag tag = HTag.BuildUlTag();
-            tag.AddP(sc.GetCode(0)+" - "+ sc.Name);
+            tag.AddP(sc.GetCode(0) + " - " + sc.Name);
             foreach (Science s in sc)
             {
                 tag.AddTegs(s.ListScience());
@@ -122,27 +121,33 @@ namespace htyWEBlib.HelpersTag
 
         public static HTag Show(this Science s, string href = null, bool code = true, string style = null, string nameID = null)
         {
-            HTag tag = HTag.Build(TypeTAG.div, css : style, nameID:nameID);
+            HTag tag = HTag.Build(TypeTAG.div, css: style, nameID: nameID);
 
             if (code) tag.AddText(s.GetCode(1), "\t");
-            if (href != null)                 
+            if (href != null)
                 tag.AddA(s.Name, href);
             else tag.AddText(s.Name);
-                    
+
             return tag;
         }
 
         public static HTag ShowFormula(this Science s)
         {
-            HTag tag = HTag.Build(TypeTAG.p, text:s.Name );
+            HTag tag = HTag.Build(TypeTAG.p, text: s.Name);
 
             foreach (Science sc in s)
             {
                 tag.AddBr();
-                tag.AddText(sc.Name);                
+                tag.AddText(sc.Name);
             }
             return tag;
         }
+
+        //delegate double formule(double x);
+        //public static SvgTag Chart(formule form)
+        //public static SvgTag Chart(Hpoint[] data)
+        //{            
+        //}
 
 
 

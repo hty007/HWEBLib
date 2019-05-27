@@ -1,4 +1,4 @@
-﻿ using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -358,5 +358,6 @@ namespace htyWEBlib.eduDisciplines
         {
             return (ScienceType)Enum.Parse(typeof(ScienceType), text);
         }
-    }    
+    }
+
 }

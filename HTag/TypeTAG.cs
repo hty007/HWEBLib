@@ -43,7 +43,9 @@
         main,
         footer,
         svg,
-        rect
+        line,
+        rect,
+        g
     }
 
 }
