@@ -78,6 +78,12 @@ namespace htyWEBlib.Tag
             this.Add(tag);
             return tag;
         }
+        public SvgContent AddG()
+        {
+            var tag = new SvgContent(TypeTAG.g);            
+            this.Add(tag);
+            return tag;
+        }
 
     }
 }

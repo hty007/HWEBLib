@@ -21,19 +21,22 @@ namespace htyWEBlib.eduDisciplines
             /// <summary>Еденицы измерения</summary>
             public string Units;
             /// <summary>Максимальное значение</summary>
-            public double? Max;
+            public double Max;
             /// <summary>Минимальное значение</summary>
-            public double? Min;
+            public double Min;
             /// <summary>Шаг нумерования</summary>
-            public double? Step;
+            public double Step;
             /// <summary>Eдиничный отрезок</summary>
-            public double? SingleSegment;
+            public double SingleSegment;
+            public bool TrySegment;
+
+            public int CountStep => (int)Math.Ceiling((Max - Min) / SingleSegment);
+
             const string sep = "@#$";
             public string Code()
             {
                 return string.Join(sep, Label, Units, Max.ToString(), Min.ToString(), Step.ToString(), SingleSegment.ToString());
             }
-
             public void Decode(string code)
             {
                 var obj = code.Split(new[] { sep }, StringSplitOptions.None);
@@ -101,6 +104,14 @@ namespace htyWEBlib.eduDisciplines
             if (YAxis.Label != null)
                 svg.Text(OY.Delta(-padding,0), YAxis.Label);
 
+            int beginX = (int)O0.X;
+            int endX = (int)OX.X - padding;
+            int step = (endX - beginX) / (XAxis.CountStep);
+            int beginY = (int)O0.Y;
+            int endY = (int)OY.Y + padding;
+            var g = svg.AddG();
+            for (int x = beginX; x <= endX; x += step)
+                g.Line(x, beginY, x, endY);
 
 
             return tag;
