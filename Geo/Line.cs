@@ -28,7 +28,7 @@ namespace htyWEBlib.Geo
 
         public double AngleHorisontal { get => Math.Atan2(Begin.Y - End.Y, Begin.X - End.X); }
         public double AngleVertical { get => Math.PI / 2 - Math.Atan2(Begin.Y - End.Y, Begin.X - End.X); }
-        public double Length { get=> }
+        public double Length { get => Math.Sqrt(Pow2(Begin.X - End.X) + Pow2(Begin.Y - End.Y)); }
     }
 
 }
