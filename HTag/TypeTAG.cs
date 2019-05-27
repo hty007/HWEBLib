@@ -39,7 +39,10 @@
         li,
         nav,
         header,
-        button
+        button,
+        main,
+        footer,
+        svg
     }
 
 }

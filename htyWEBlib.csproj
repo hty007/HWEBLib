@@ -51,6 +51,8 @@
     <Compile Include="HTag\FormTag.cs" />
     <Compile Include="HTag\HtmlTag.cs" />
     <Compile Include="HTag\InputTag.cs" />
+    <Compile Include="HTag\SelectTag.cs" />
+    <Compile Include="HTag\SvgTag.cs" />
     <Compile Include="HTag\TableTag.cs" />
     <Compile Include="HTag\HTag.cs" />
     <Compile Include="HTag\TypeTAG.cs" />

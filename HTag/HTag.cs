@@ -13,6 +13,40 @@ namespace htyWEBlib.Tag
         public string Name { get => this["name"]; set => this["name"] = value; }
         #endregion
         #region Функционал
+        /// <summary>Найти нег с определёнными параметрами</summary>
+        /// <returns> Возвращает найденый тег, или null если тег не нашелся</returns>
+        public HTag GetTag(TypeTAG type = TypeTAG.NULL, 
+            string text = null, string cssClass = null, 
+            string id = null, string name = null)
+        {
+            foreach (HTag t in Content)
+            {
+                if (t.Checked(type, text, cssClass, id, name))
+                    return t;
+            }
+            foreach (HTag t in Content)
+            {
+                HTag tag = t.GetTag(type, text, cssClass, id, name);
+                if (tag != null)
+                    return tag;
+            }
+            return null;
+        }
+
+        private bool Checked(TypeTAG type = TypeTAG.NULL,string text = null, string cssClass = null,string id = null, string name = null)
+        {
+            if ((type != TypeTAG.NULL)&&(this.Tag != type))
+                    return false;
+            if ((text != null)&&(this.Text != text))
+                    return false;
+            if ((cssClass != null) && (this.CSSClass != cssClass))
+                return false;
+            if ((id != null) && (this.ID != id))
+                return false;
+            if ((name != null) && (this.Name != name))
+                return false;
+            return true;
+        }
         public HTag Add(TypeTAG type, string text, string cssClass = null, string id = null)
         {
             var tag = HTag.Build(type, text: text, css: cssClass);
@@ -61,7 +95,6 @@ namespace htyWEBlib.Tag
             this.AddContent(tag);
             return tag;
         }
-
         public InputTag AddCheckInput(string nameID = null, string value = null)
         {
             var tag = new InputTag(TypeInput.checkbox, value: value, nameID: nameID);            
@@ -75,7 +108,6 @@ namespace htyWEBlib.Tag
             this.AddContent(select);
             return select;
         }
-
         public HTag AddScript(string stript = null, string fileName = null, string type = null)
         {
             var tag = HTag.Build(TypeTAG.script, stript);
@@ -83,23 +115,7 @@ namespace htyWEBlib.Tag
             if (type != null) tag["type"] = type;
             AddContent(tag);
             return tag;
-        }
-
-        public static FormTag BuildForm(string action, string auto = "on", string enctype = null)
-        {
-            FormTag tag = new FormTag
-            {
-                Action = action,
-                Autocomplete = auto
-            };
-            if (enctype != null) tag.Enctype = enctype;
-
-            return tag;
-            //throw new NotImplementedException();
-        }
-
-
-
+        }        
         public HTag AddSubmit(string value = null)
         {
             var sub = new InputTag(TypeInput.submit);
@@ -107,7 +123,6 @@ namespace htyWEBlib.Tag
             this.AddContent(sub);
             return sub;
         }
-
         /// <summary>Перенос на новую строку</summary>        
         public HTag AddBr()
         {
@@ -164,10 +179,12 @@ namespace htyWEBlib.Tag
             this.AddContent(tag);
             return tag;
         }
-
-
-
-
+        public SvgTag AddSvg(string nameID = null)
+        {
+            var tag = new SvgTag(nameID);
+            this.AddContent(tag);
+            return tag;
+        }
         #endregion
         #region Статик функции
         public static HTag Build(TypeTAG type, string text = null, string css = null, string nameID = null)
@@ -178,7 +195,6 @@ namespace htyWEBlib.Tag
             if (nameID != null) tag.SetNameID(nameID);
             return tag;
         }
-
         public static HTag Build_Null(string text = null)
         {
             HTag tag = new HTag(TypeTAG.NULL);
@@ -194,29 +210,23 @@ namespace htyWEBlib.Tag
             return tagA;
             //throw new NotImplementedException();
         }
-
         public static UlTag BuildUlTag()
         {
             return new UlTag();
         }
+        public static FormTag BuildForm(string action, string auto = "on", string enctype = null)
+        {
+            FormTag tag = new FormTag
+            {
+                Action = action,
+                Autocomplete = auto
+            };
+            if (enctype != null) tag.Enctype = enctype;
 
+            return tag;
+            //throw new NotImplementedException();
+        }        
         #endregion
 
-    }
-
-
-    public class SelectTag : HTag
-    {
-        public HTag AddOption(string text, string value)
-        {
-            //<option value=\"{DidacticType.Definition}\">Определение</option>
-            HTag opt = HTag.Build(TypeTAG.option, text: text);
-            opt["value"] = value;
-            this.AddContent(opt);
-            return opt;
-        }
-        public SelectTag() : base(TypeTAG.select)
-        {
-        }
     }
 }
