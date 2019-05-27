@@ -79,6 +79,11 @@ namespace htyWEBlib.Geo
             writer.Write(X);
             writer.Write(Y);
         }
+
+        public HPoint Delta(double dx, double dy)
+        {
+            return new HPoint(X + dx, Y + dy);            
+        }
         #endregion
     }
 

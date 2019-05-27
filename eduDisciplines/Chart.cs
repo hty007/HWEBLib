@@ -8,7 +8,7 @@ using htyWEBlib.Tag;
 namespace htyWEBlib.eduDisciplines
 {
     public class Chart : Fragment
-    {
+    {        
         #region Поля, свойства
         public List<HPoint> Data { get; set; }
         public Axis XAxis { get; set; }
@@ -21,13 +21,13 @@ namespace htyWEBlib.eduDisciplines
             /// <summary>Еденицы измерения</summary>
             public string Units;
             /// <summary>Максимальное значение</summary>
-            public double Max;
+            public double? Max;
             /// <summary>Минимальное значение</summary>
-            public double Min;
+            public double? Min;
             /// <summary>Шаг нумерования</summary>
-            public double Step;
+            public double? Step;
             /// <summary>Eдиничный отрезок</summary>
-            public double SingleSegment;
+            public double? SingleSegment;
             const string sep = "@#$";
             public string Code()
             {
@@ -36,7 +36,7 @@ namespace htyWEBlib.eduDisciplines
 
             public void Decode(string code)
             {
-                var obj = code.Split(new[] { sep }, StringSplitOptions.RemoveEmptyEntries);
+                var obj = code.Split(new[] { sep }, StringSplitOptions.None);
                 Label = obj[0];
                 Units = obj[1];
                 Max = double.Parse(obj[2]);
@@ -72,26 +72,39 @@ namespace htyWEBlib.eduDisciplines
                 p.Save(writer);
             }
         }
+        public Chart()
+        {
+            XAxis = new Axis();
+            YAxis = new Axis();
+        }
+        #endregion
+        #region Функционал
         public override HTag ToTag()
         {
             int w = 300;
-            int h = 100;
+            int h = 200;
             int margin = 5;
-            int padding = 5;
+            int padding = 10;
             var tag = HTag.Build(TypeTAG.div, nameID:$"chart{ID}");
             tag.AddP(Name);
             var svg =  tag.AddSvg();
             svg.Width = w.ToString();
             svg.Height = h.ToString();
             var O0 = new HPoint(x: margin + padding, y: h - margin - padding);
-            var OX = new HPoint(x: w-margin, y: h - margin - padding);
-            var OY = new HPoint(x: margin + padding, y: margin + padding);
-            svg.Arrow(O0, OX);
+            var OX = new HPoint(x: w-margin, y: O0.Y);
+            var OY = new HPoint(x: O0.X, y: margin + padding);
+
+            svg.Arrow(O0, OX, padding);
+            svg.Arrow(O0, OY, padding);
+            if (XAxis.Label != null)
+                svg.Text(OX.Delta(-20, 10), XAxis.Label);
+            if (YAxis.Label != null)
+                svg.Text(OY.Delta(-padding,0), YAxis.Label);
 
 
+
+            return tag;
         }
-        #endregion
-        #region Функционал
         #endregion
         #region 
         #endregion

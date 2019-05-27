@@ -45,7 +45,8 @@
         svg,
         line,
         rect,
-        g
+        g,
+        text
     }
 
 }

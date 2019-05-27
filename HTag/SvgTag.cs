@@ -39,15 +39,24 @@ namespace htyWEBlib.Tag
         public SvgContent(TypeTAG tag) : base(tag)
         {
         }
-        internal SvgContent Arrow(Geo.HPoint o0, Geo.HPoint oX)
+        internal SvgContent Arrow(Geo.HPoint o0, Geo.HPoint oX, double length = -1)
         {
                Line line = new Line(o0, oX);
-               var tag = line.Arrow(0.4, line.Length * 0.1);
+               var tag = line.Arrow(0.4, (length == -1)?line.Length * 0.1:length);
                Add(tag);
                return tag;
-
-
         }
+        internal new SvgContent Text(Geo.HPoint pos, string text, double length = -1)
+        {
+            var tag = new SvgContent(TypeTAG.text);
+            tag["x"] = ((int)pos.X).ToString();
+            tag["y"] = ((int)pos.Y).ToString();
+            var t = (BuilderTag)tag;
+            t.Text =text;
+            Add(tag);
+            return tag;
+        }
+
         public SvgContent Rect(double x, double y, double width, double height)
         {
             var tag = new SvgContent(TypeTAG.rect);
@@ -55,7 +64,7 @@ namespace htyWEBlib.Tag
             tag["y"] = y.ToString();
             tag["width"] = width.ToString();
             tag["height"] = height.ToString();
-            this.Add(tag);
+            Add(tag);
             return tag;
         }
         public SvgContent Line(double x1, double y1, double x2, double y2, string stroke = "black")
