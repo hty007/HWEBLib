@@ -39,10 +39,14 @@ namespace htyWEBlib.Tag
         public SvgContent(TypeTAG tag) : base(tag)
         {
         }
-        internal void Arrow(Geo.HPoint o0, Geo.HPoint oX)
+        internal SvgContent Arrow(Geo.HPoint o0, Geo.HPoint oX)
         {
-           Line line = new Line(o0, oX);
-            this.Add(line.Arrow(0.4, line.Length*0.1));
+               Line line = new Line(o0, oX);
+               var tag = line.Arrow(0.4, line.Length * 0.1);
+               Add(tag);
+               return tag;
+
+
         }
         public SvgContent Rect(double x, double y, double width, double height)
         {
