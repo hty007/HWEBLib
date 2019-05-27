@@ -42,7 +42,8 @@
         button,
         main,
         footer,
-        svg
+        svg,
+        rect
     }
 
 }

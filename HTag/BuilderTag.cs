@@ -16,12 +16,7 @@ namespace htyWEBlib.Tag
         /// <summary> Текст, если присвоент внутрение теги не учитываются </summary>
         public string Text { get => text; set => text = value; }
         /// <summary> Словарь атрибутов </summary>
-        public Dictionary<string, string> Attributes { get => attributes; set => attributes = value; }
-
-        internal void Add(TD_Tag tD_Tag)
-        {
-            throw new NotImplementedException();
-        }
+        public Dictionary<string, string> Attributes { get => attributes; set => attributes = value; }        
 
         /// <summary> Внутренние теги </summary>
         public List<BuilderTag> Content { get => content; set => content = value; }
@@ -149,9 +144,10 @@ namespace htyWEBlib.Tag
             tag1.AddContent(tag2);
             return tag1;
         }
-
-        
-
+        public void Add(BuilderTag tag)
+        {
+            Content.Add(tag);
+        }
         public void AddContent(BuilderTag tag)
         {
             Content.Add(tag);

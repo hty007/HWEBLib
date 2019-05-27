@@ -22,7 +22,16 @@
         }
         #endregion
         #region Функционал
-        public SvgContent Rect
+        public SvgContent Rect(double x, double y, double width, double heigth)
+        {
+            var tag = new SvgContent(TypeTAG.rect);
+            tag["x"] = x.ToString();
+            tag["y"] = y.ToString();
+            tag["width"] = width.ToString();
+            tag["heigth"] = heigth.ToString();
+            this.Add(tag);
+            return tag;
+        }
         #endregion
     }
 
