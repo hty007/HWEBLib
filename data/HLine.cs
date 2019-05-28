@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -109,52 +108,5 @@ namespace htyWEBlib.data
         }
         #endregion
 
-    }
-
-    public class Pair: IHData
-    {
-        private string key;
-        private string value;
-
-        
-        public string Key { get => key; set => key = value; }
-        public string ValueString { get => value; set => this.value = value; }
-        public int ValueInt { get => int.Parse(value); set => this.value = value.ToString(); }
-        public bool ValueBool { get => bool.Parse(value); set => this.value = value.ToString(); }
-        public double ValueDouble { get => double.Parse(value); set => this.value = value.ToString(); }
-        
-
-        public Pair(string key, string value)
-        {
-            Key = key;
-            this.value = value;
-        }
-        public Pair() : this("","") { }
-        public Pair(string key, int value):this(key, value.ToString()) { }
-        public Pair(string key, bool value) : this(key, value.ToString()) { }
-        public Pair(string key, double value) : this(key, value.ToString()) { }
-        public Pair(string line) => InString(line);
-
-        public override string ToString() => string.Format("{0}={1}", key, value);
-        public void InString(string line)
-        {
-            var pair = line.Split('=');
-            if (pair.Length != 2)
-                throw new ArgumentException("Должно быть пара значений");
-            key = pair[0];
-            value = pair[1];
-        }
-
-        public void Load(BinaryReader reader)
-        {
-            key = reader.ReadString();
-            value = reader.ReadString();
-        }
-
-        public void Save(BinaryWriter writer)
-        {
-            writer.Write(key);
-            writer.Write(value);
-        }
     }
 }

@@ -49,6 +49,7 @@
     <Compile Include="data\IHData.cs" />
     <Compile Include="data\IHLines.cs" />
     <Compile Include="data\IHStringData.cs" />
+    <Compile Include="data\Pair.cs" />
     <Compile Include="eduDisciplines\Chart.cs" />
     <Compile Include="eduDisciplines\Fragment.cs" />
     <Compile Include="eduDisciplines\Problem.cs" />

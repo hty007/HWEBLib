@@ -200,23 +200,20 @@ namespace htyWEBlib.eduDisciplines
         }
         public void SaveNew(BinaryWriter writer)
         {
-            Pair pc = new Pair("c",5);
-            pc.Save(writer);
+            //Pair pc = new Pair("c",5);
+            //pc.Save(writer);
+            var data = new List<Pair>();
+            new Pair("t", (int)Type));
+            data.Add(new Pair("id", ID));
+            data.Add(new Pair("n", Name));
+            data.Add(new Pair("d", Distribution));
+            data.Add(new Pair("cc", content.Count));
 
-            Pair pt = new Pair("t", (int)Type);
-            pt.Save(writer);
-
-            Pair pid = new Pair("id", ID);
-            pid.Save(writer);
-
-            Pair pn = new Pair("n", Name);
-            pn.Save(writer);
-
-            Pair pdc = new Pair("d", Distribution.Coder());
-            pdc.Save(writer);
-
-            Pair pcc = new Pair("cc", content.Count);            
-            pcc.Save(writer);
+            writer.Write(data.Count);
+            foreach (var p in data)
+            {
+                p.Save(writer);
+            }
 
             foreach (var item in content)
             {

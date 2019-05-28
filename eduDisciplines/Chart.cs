@@ -14,38 +14,97 @@ namespace htyWEBlib.eduDisciplines
         public Axis XAxis { get; set; }
         public Axis YAxis { get; set; }
 
-        public class Axis : ICoder
+        public class Axis : IHData
         {
             /// <summary>Метка</summary>
-            public string Label;
-            /// <summary>Еденицы измерения</summary>
-            public string Units;
+            private string label;            
             /// <summary>Максимальное значение</summary>
             public double Max;
             /// <summary>Минимальное значение</summary>
             public double Min;
             /// <summary>Шаг нумерования</summary>
-            public double Step;
+            private double step;
             /// <summary>Eдиничный отрезок</summary>
-            public double SingleSegment;
-            public bool TrySegment;
+            private double singleSegment;
+            private bool TrySegment;
+            private bool TryLabel;
 
             public int CountStep => (int)Math.Ceiling((Max - Min) / SingleSegment);
-
-            const string sep = "@#$";
-            public string Code()
+            public string Label
             {
-                return string.Join(sep, Label, Units, Max.ToString(), Min.ToString(), Step.ToString(), SingleSegment.ToString());
+                get => label;
+                set
+                {
+                    TryLabel = true;
+                    label = value;
+                }
             }
-            public void Decode(string code)
+            public double SingleSegment
             {
-                var obj = code.Split(new[] { sep }, StringSplitOptions.None);
-                Label = obj[0];
-                Units = obj[1];
-                Max = double.Parse(obj[2]);
-                Min = double.Parse(obj[3]);
-                Step = double.Parse(obj[4]);
-                SingleSegment = double.Parse(obj[5]);
+                get
+                {
+                    if (TrySegment)
+                        if (singleSegment == 0) return step;
+                    return singleSegment;
+                }
+                set
+                {
+                    TrySegment = true;
+                    singleSegment = value;
+                }
+            }
+            public double Step
+            {
+                get
+                {
+                    if (TrySegment)
+                        if (step == 0) return singleSegment;
+                    return step;
+                }
+
+                set
+                {
+                    TrySegment = true;
+                    step = value;
+                }
+            }
+
+            public void Load(BinaryReader reader)
+            {
+                var count = reader.ReadInt32();                
+                for (int i = 0; i < count; i++)
+                {
+                    var p = new Pair();
+                    p.Load(reader);
+                    switch (p.Key)
+                    {
+                        case "l": Label = (string)p.Value; break;
+                        case "mx": Max = (double)p.Value; break;
+                        case "mn": Min = (double)p.Value; break;
+                        case "st": Step = (double)p.Value; break;
+                        case "sn": SingleSegment = (double)p.Value; break;
+                    }
+                }
+            }
+            public void Save(BinaryWriter writer)
+            {
+                var data = new List<Pair>();
+                if (label != null)
+                    data.Add(new Pair("l", label));
+                if (Max != Min)
+                {
+                    data.Add(new Pair("mx", Max));
+                    data.Add(new Pair("mn", Min));
+                }
+                if (step != 0)
+                    data.Add(new Pair("st", step));
+                if (singleSegment != 0)
+                    data.Add(new Pair("sn", singleSegment));
+                writer.Write(data.Count);
+                foreach (var p in data)
+                {
+                    p.Save(writer);
+                }                
             }
         }
         #endregion
@@ -54,8 +113,8 @@ namespace htyWEBlib.eduDisciplines
         {
             ID = reader.ReadInt32();
             Name = reader.ReadString();
-            XAxis.Decode(reader.ReadString());
-            YAxis.Decode(reader.ReadString());
+            XAxis.Load(reader);
+            YAxis.Load(reader);
             int cD = reader.ReadInt32();
             for (int i = 0; i < cD; i++)
             {
@@ -68,8 +127,10 @@ namespace htyWEBlib.eduDisciplines
         {
             writer.Write(ID);
             writer.Write(Name);
-            writer.Write(XAxis.Code());
-            writer.Write(YAxis.Code());
+            XAxis.Save(writer);
+            YAxis.Save(writer);
+
+            writer.Write(Data.Count);
             foreach (HPoint p in Data)
             {
                 p.Save(writer);
@@ -96,23 +157,26 @@ namespace htyWEBlib.eduDisciplines
             var O0 = new HPoint(x: margin + padding, y: h - margin - padding);
             var OX = new HPoint(x: w-margin, y: O0.Y);
             var OY = new HPoint(x: O0.X, y: margin + padding);
-
+            // Рисуем оси и подписываем их
             svg.Arrow(O0, OX, padding);
             svg.Arrow(O0, OY, padding);
             if (XAxis.Label != null)
                 svg.Text(OX.Delta(-20, 10), XAxis.Label);
             if (YAxis.Label != null)
                 svg.Text(OY.Delta(-padding,0), YAxis.Label);
-
+            // Рисуем направляющие
             int beginX = (int)O0.X;
             int endX = (int)OX.X - padding;
-            int step = (endX - beginX) / (XAxis.CountStep);
+            int stepX = (endX - beginX) / (XAxis.CountStep);
             int beginY = (int)O0.Y;
             int endY = (int)OY.Y + padding;
+            int stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
             var g = svg.AddG();
-            for (int x = beginX; x <= endX; x += step)
+            for (int x = beginX; x <= endX; x += stepX)
                 g.Line(x, beginY, x, endY);
-
+            for (int y = beginY; y >= endY; y -= stepY)
+                g.Line(beginX, y, endX, y);
+            g["stroke-dasharray"] = "10,5";
 
             return tag;
         }
