@@ -30,7 +30,7 @@ namespace htyWEBlib.data
             else if (typ == typeof(bool)) type = PairType.b;
             else if (typ == typeof(double)) type = PairType.d;
             else if (typ == typeof(string)) type = PairType.s;
-            else if (typ.GetInterfaces().Contains(typeof(IHData))) type = PairType.IHdata;
+            else if (typ.GetInterfaces().Contains(typeof(IHData))) type = PairType.pairs;
             else throw new ArgumentException($"Это надо предусмотреть! type = {typ}");
             this.value = value;
         }
@@ -48,7 +48,9 @@ namespace htyWEBlib.data
                 case PairType.d: value = reader.ReadDouble(); break;
                 case PairType.b: value = reader.ReadBoolean(); break;
                 case PairType.s: value = reader.ReadString(); break;
-                case PairType.IHdata: ((IHData)value).Load(reader); break;
+                case PairType.pairs:
+                    value = new Pairs(reader);
+                    break;
                 default: throw new ArgumentException($"Это надо предусмотреть! type = {type}");
             }            
         }
@@ -62,13 +64,14 @@ namespace htyWEBlib.data
                 case PairType.d: writer.Write((double)value); break;
                 case PairType.b: writer.Write((bool)value); break;
                 case PairType.s: writer.Write((string)value);  break;
-                case PairType.IHdata: ((IHData)value).Save(writer); break;
+                case PairType.pairs:((IHData)value).Save(writer);
+                    break;
                 default: throw new ArgumentException($"Это надо предусмотреть! type = {type}");
             }            
         }
         private enum PairType
         {
-            i,b,d,s,IHdata
+            i,b,d,s,pairs
         }
     }
     /// <summary>

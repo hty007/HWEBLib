@@ -171,10 +171,10 @@ namespace htyWEBlib.eduDisciplines
             {
                 switch (p.Key)
                 {
-                    case "t": Type = p.ValueString.ToScienceType(); break;
+                    case "t": Type = (ScienceType)p.ValueInt; break;
                     case "id": ID = p.ValueInt; break;
                     case "n": Name = p.ValueString; break;
-                    case "d": Distribution.Decoder(p.ValueString); break;
+                    case "d": Distribution.InPairs((Pairs)p.Value); break;
                     case "cc": count = p.ValueInt; break;
                 }
             }                      
@@ -190,7 +190,7 @@ namespace htyWEBlib.eduDisciplines
             var data = new Pairs();
             data.Add("t", (int)Type);
             data.Add("id", ID);
-            data.Add("n", Name));
+            data.Add("n", Name);
             data.Add("d", Distribution);
             data.Add("cc", content.Count);
             data.Save(writer);
@@ -230,7 +230,6 @@ namespace htyWEBlib.eduDisciplines
     public class DistributionType : IHData
     {
         public const int Count = 7;
-
         private bool[] data;            
         public bool this[int index] {
             get {
@@ -252,6 +251,10 @@ namespace htyWEBlib.eduDisciplines
         public void Load(BinaryReader reader)
         {
             var dat = new Pairs(reader);
+            InPairs(dat);
+        }
+        public void InPairs(Pairs dat)
+        {
             foreach (var p in dat)
             {
                 if (p.ValueBool)
@@ -271,46 +274,48 @@ namespace htyWEBlib.eduDisciplines
             }
             dat.Save(writer);
         }
-            public string Coder()
+        public string Coder()
+        {
+            char[] d = new char[Count];
+            for (int i = 0; i < Count; i++)
             {
-                char[] d = new char[Count];
-                for (int i = 0; i < Count; i++)
-                {
-                    d[i] = data[i] ? 't' : 'f';
-                }
-                return string.Concat(d);
+                d[i] = data[i] ? 't' : 'f';
             }
-            public void Decoder(string code)
+            return string.Concat(d);
+        }
+        public void Decoder(string code)
+        {
+            char[] d = code.ToCharArray();
+            for (int i = 0; i < Count; i++)
             {
-                char[] d = code.ToCharArray();
-                for (int i = 0; i < Count; i++)
-                {
-                    data[i] = d[i] == 't';
-                }
-            }
-            public override string ToString()
-            {
-                StringBuilder res = new StringBuilder();
-                for (int i = 7; i < 12; i++)
-                    if (this[i])
-                    {
-                        if (res.Length != 0) res.Append(", ");
-                        res.Append(i.ToString());
-                    }                
-                
-                if (OGE9)
-                {
-                    if (res.Length != 0) res.Append(", ");
-                    res.Append("ОГЭ9");
-                }                
-                if (OGE11)
-                {
-                    if (res.Length != 0) res.Append(", ");
-                    res.Append("ОГЭ11");
-                }
-                return res.ToString();
+                data[i] = d[i] == 't';
             }
         }
+        public override string ToString()
+        {
+            StringBuilder res = new StringBuilder();
+            for (int i = 7; i < 12; i++)
+                if (this[i])
+                {
+                    if (res.Length != 0) res.Append(", ");
+                    res.Append(i.ToString());
+                }                
+                
+            if (OGE9)
+            {
+                if (res.Length != 0) res.Append(", ");
+                res.Append("ОГЭ9");
+            }                
+            if (OGE11)
+            {
+                if (res.Length != 0) res.Append(", ");
+                res.Append("ОГЭ11");
+            }
+            return res.ToString();
+        }
+
+       
+    }
     public enum ScienceType
     {
         theme,
@@ -340,7 +345,9 @@ namespace htyWEBlib.eduDisciplines
         public static ScienceType ToScienceType(this string text)
         {
             return (ScienceType)Enum.Parse(typeof(ScienceType), text);
+            
         }
+        
     }
 
 }

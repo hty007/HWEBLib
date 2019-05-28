@@ -71,6 +71,7 @@ namespace htyWEBlib.eduDisciplines
 
             public void Load(BinaryReader reader)
             {
+                var data = new Pairs(reader);
                 var count = reader.ReadInt32();                
                 for (int i = 0; i < count; i++)
                 {
@@ -88,7 +89,7 @@ namespace htyWEBlib.eduDisciplines
             }
             public void Save(BinaryWriter writer)
             {
-                var data = new List<Pair>();
+                var data = new Pairs();
                 if (label != null)
                     data.Add(new Pair("l", label));
                 if (Max != Min)
@@ -100,11 +101,7 @@ namespace htyWEBlib.eduDisciplines
                     data.Add(new Pair("st", step));
                 if (singleSegment != 0)
                     data.Add(new Pair("sn", singleSegment));
-                writer.Write(data.Count);
-                foreach (var p in data)
-                {
-                    p.Save(writer);
-                }                
+                data.Save(writer);
             }
         }
         #endregion
@@ -129,7 +126,6 @@ namespace htyWEBlib.eduDisciplines
             writer.Write(Name);
             XAxis.Save(writer);
             YAxis.Save(writer);
-
             writer.Write(Data.Count);
             foreach (HPoint p in Data)
             {
