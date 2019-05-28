@@ -145,21 +145,16 @@ namespace htyWEBlib.eduDisciplines
             int h = 200;
             int margin = 5;
             int padding = 10;
-            var tag = HTag.Build(TypeTAG.div, nameID:$"chart{ID}");
+            var tag = HTag.Build(TypeTAG.div, nameID: $"chart{ID}");
             tag.AddP(Name);
-            var svg =  tag.AddSvg();
+            var svg = tag.AddSvg();
             svg.Width = w.ToString();
             svg.Height = h.ToString();
             var O0 = new HPoint(x: margin + padding, y: h - margin - padding);
-            var OX = new HPoint(x: w-margin, y: O0.Y);
+            var OX = new HPoint(x: w - margin, y: O0.Y);
             var OY = new HPoint(x: O0.X, y: margin + padding);
             // Рисуем оси и подписываем их
-            svg.Arrow(O0, OX, padding);
-            svg.Arrow(O0, OY, padding);
-            if (XAxis.Label != null)
-                svg.Text(OX.Delta(-20, 10), XAxis.Label);
-            if (YAxis.Label != null)
-                svg.Text(OY.Delta(-padding,0), YAxis.Label);
+            PicAxis(padding, svg, O0, OX, OY);
             // Рисуем направляющие
             int beginX = (int)O0.X;
             int endX = (int)OX.X - padding;
@@ -167,14 +162,41 @@ namespace htyWEBlib.eduDisciplines
             int beginY = (int)O0.Y;
             int endY = (int)OY.Y + padding;
             int stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
+            Rails(svg, beginX, endX, stepX, beginY, endY, stepY);
+            var p = Data[0];
+            ConvertPoint(beginX, stepX, beginY, stepY, p);
+
+            return tag;
+        }
+
+        private HPoint ConvertPoint(HPoint p, int beginX, int stepX, int beginY, int stepY )
+        {
+            var newX = beginX + p.X * stepX / XAxis.SingleSegment;
+            var newY = beginY - p.Y * stepY / YAxis.SingleSegment;
+            return new HPoint(newX, newY);
+        }
+
+        private static void Rails(SvgTag svg, int beginX, int endX, int stepX, int beginY, int endY, int stepY)
+        {
             var g = svg.AddG();
             for (int x = beginX; x <= endX; x += stepX)
+            {
                 g.Line(x, beginY, x, endY);
+                g.Text(new HPoint(x, beginX), )
+            }
             for (int y = beginY; y >= endY; y -= stepY)
                 g.Line(beginX, y, endX, y);
             g["stroke-dasharray"] = "10,5";
+        }
 
-            return tag;
+        private void PicAxis(int padding, SvgTag svg, HPoint O0, HPoint OX, HPoint OY)
+        {
+            svg.Arrow(O0, OX, padding);
+            svg.Arrow(O0, OY, padding);
+            if (XAxis.Label != null)
+                svg.Text(OX.Delta(-20, 10), XAxis.Label);
+            if (YAxis.Label != null)
+                svg.Text(OY.Delta(-padding, 0), YAxis.Label);
         }
         #endregion
         #region 
