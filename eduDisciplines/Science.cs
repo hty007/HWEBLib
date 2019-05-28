@@ -7,7 +7,7 @@ using htyWEBlib.data;
 
 namespace htyWEBlib.eduDisciplines
 {
-    public class Science: IHData, IComparable, IEnumerable, IHStringData
+    public class Science: IHData, IComparable, IEnumerable<Science>, IHStringData
     {
         #region Поля и свойства
 
@@ -26,7 +26,6 @@ namespace htyWEBlib.eduDisciplines
         /// <summary>Получить на уровень выше</summary>
         public Science GetMaster() => master;
         #endregion
-
         #region Конструкторы
         public Science()
         {
@@ -66,12 +65,10 @@ namespace htyWEBlib.eduDisciplines
             string code = string.Join(".",ids.ToArray());
             return code;
         }
-
         public bool ContainIn(int id)
         {
             return null != content.Find(n => n.ID == id);
         }
-
         /// <summary>
         /// Найти нужную тему 
         /// </summary>
@@ -104,7 +101,6 @@ namespace htyWEBlib.eduDisciplines
         {
             this.master = master;            
         }
-
         public void ReIndex()
         {
             for (int i = 0; i < Count; i++)
@@ -112,7 +108,6 @@ namespace htyWEBlib.eduDisciplines
                 content[i].ID = i+1;
             }
         }
-
         public virtual void Add(Science science)
         {
             if (content.Find(n => n.ID == science.ID)!= null)
@@ -133,14 +128,9 @@ namespace htyWEBlib.eduDisciplines
             Science sc = (Science)obj;
             return ID.CompareTo(sc.ID);
         }
-        public override string ToString()
-        {
-            return string.Format("{0}", GetCode(0));
-        }
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)content).GetEnumerator();
-        }
+        public override string ToString() => string.Format("{0}", GetCode(0));
+        public IEnumerator<Science> GetEnumerator() => ((IEnumerable<Science>)content).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Science>)content).GetEnumerator();
         private const string Separetor = "#!_!#";
         public void Load(StreamReader sr)
         {
@@ -173,15 +163,12 @@ namespace htyWEBlib.eduDisciplines
 
             //throw new NotImplementedException();
         }
-        public void LoadNew(BinaryReader reader)
+        public void Load(BinaryReader reader)
         {
+            var data = new Pairs(reader);
             int count = 0;
-            Pair pc = new Pair();
-            pc.Load(reader);
-            int c = pc.ValueInt;
-            for (int i = 0; i <c ; i++)
+            foreach (var p in data)
             {
-                Pair p = new Pair(); p.Load(reader);
                 switch (p.Key)
                 {
                     case "t": Type = p.ValueString.ToScienceType(); break;
@@ -190,43 +177,7 @@ namespace htyWEBlib.eduDisciplines
                     case "d": Distribution.Decoder(p.ValueString); break;
                     case "cc": count = p.ValueInt; break;
                 }
-            }            
-            for (int i = 0; i < count; i++)
-            {
-                Science item = new Science();
-                item.LoadNew(reader);
-                Add(item);
-            }
-        }
-        public void SaveNew(BinaryWriter writer)
-        {
-            //Pair pc = new Pair("c",5);
-            //pc.Save(writer);
-            var data = new List<Pair>();
-            new Pair("t", (int)Type));
-            data.Add(new Pair("id", ID));
-            data.Add(new Pair("n", Name));
-            data.Add(new Pair("d", Distribution));
-            data.Add(new Pair("cc", content.Count));
-
-            writer.Write(data.Count);
-            foreach (var p in data)
-            {
-                p.Save(writer);
-            }
-
-            foreach (var item in content)
-            {
-                item.SaveNew(writer);
-            }
-        }
-        public void Load(BinaryReader reader)
-        {
-            Type = (ScienceType)reader.ReadInt32();            
-            ID = reader.ReadInt32();
-            Name = reader.ReadString();
-            Distribution.Load(reader);
-            int count = reader.ReadInt32();
+            }                      
             for (int i = 0; i < count; i++)
             {
                 Science item = new Science();
@@ -236,6 +187,34 @@ namespace htyWEBlib.eduDisciplines
         }
         public void Save(BinaryWriter writer)
         {
+            var data = new Pairs();
+            data.Add("t", (int)Type);
+            data.Add("id", ID);
+            data.Add("n", Name));
+            data.Add("d", Distribution);
+            data.Add("cc", content.Count);
+            data.Save(writer);
+            foreach (var item in content)
+            {
+                item.Save(writer);
+            }
+        }
+        public void LoadOld(BinaryReader reader)
+        {
+            Type = (ScienceType)reader.ReadInt32();            
+            ID = reader.ReadInt32();
+            Name = reader.ReadString();
+            Distribution.Load(reader);
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                Science item = new Science();
+                item.LoadOld(reader);
+                Add(item);
+            }
+        }
+        public void SaveOld(BinaryWriter writer)
+        {
             writer.Write((int)Type);            
             writer.Write(ID);
             writer.Write(Name);
@@ -243,48 +222,55 @@ namespace htyWEBlib.eduDisciplines
             writer.Write(content.Count);
             foreach (var item in content)
             {
-                item.Save(writer);
+                item.SaveOld(writer);
             }
         }
         #endregion
-        
     }
     public class DistributionType : IHData
-        {
-            public const int Count = 7;
+    {
+        public const int Count = 7;
 
-            private bool[] data;            
-            public bool this[int index] {
-                get {
-                    if (index < 7 || index > 11)
-                        return false;
-                    return data[index - 7];
-                }
-                set
-                {
-                    if (index >= 7 && index <= 11)
-                        data[index - 7] = value;
-                } }
-            public bool OGE9 { get => data[5]; set => data[5] = value; }
-            public bool OGE11 { get => data[6]; set => data[6] = value; }
-            public DistributionType()
+        private bool[] data;            
+        public bool this[int index] {
+            get {
+                if (index < 7 || index > 11)
+                    return false;
+                return data[index - 7];
+            }
+            set
             {
-                data = new bool[Count];
-            }
-            public void Load(BinaryReader reader)
-            {                
-                for (int i = 0; i < Count; i++)
-                {
-                    data[i] = reader.ReadBoolean();
-                }
-            }
-            public void Save(BinaryWriter writer)
+                if (index >= 7 && index <= 11)
+                    data[index - 7] = value;
+            } }
+        public bool OGE9 { get => data[5]; set => data[5] = value; }
+        public bool OGE11 { get => data[6]; set => data[6] = value; }
+        public DistributionType()
+        {
+            data = new bool[Count];
+        }
+        public void Load(BinaryReader reader)
+        {
+            var dat = new Pairs(reader);
+            foreach (var p in dat)
             {
-                foreach (var b in data)
+                if (p.ValueBool)
                 {
-                    writer.Write(b);
+                    int n = int.Parse(p.Key);
+                    data[n] = true;
                 }
             }
+        }
+        public void Save(BinaryWriter writer)
+        {
+            var dat = new Pairs();
+            for (int i = 0; i < Count; i++)
+            {
+                if (data[i])
+                    dat.Add(i.ToString(), data[i]);                 
+            }
+            dat.Save(writer);
+        }
             public string Coder()
             {
                 char[] d = new char[Count];

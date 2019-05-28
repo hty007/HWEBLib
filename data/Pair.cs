@@ -17,14 +17,11 @@ namespace htyWEBlib.data
 
         public object Value { get => value; }
         public string Key { get => key; set => key = value; }
-        /*
-        public string ValueString { get => value; set => this.value = value; }
-        public int ValueInt { get => int.Parse(value); set => this.value = value.ToString(); }
-        public bool ValueBool { get => bool.Parse(value); set => this.value = value.ToString(); }
-        public double ValueDouble { get => double.Parse(value); set => this.value = value.ToString(); }
+        public string ValueString { get => (string)value;}
+        public int ValueInt { get => (int)value; }
+        public bool ValueBool { get => (bool)value;}
+        public double ValueDouble { get => (double)value;}
         /**/
-        
-
         public Pair(string key, object value)
         {
             Key = key;
@@ -37,20 +34,10 @@ namespace htyWEBlib.data
             else throw new ArgumentException($"Это надо предусмотреть! type = {typ}");
             this.value = value;
         }
-
         public Pair()
         {
         }
-
-        /*public Pair() : this("","") { }
-public Pair(string key, int value):this(key, value.ToString()) { }
-public Pair(string key, bool value) : this(key, value.ToString()) { }
-public Pair(string key, double value) : this(key, value.ToString()) { }
-public Pair(string line) => InString(line);/**/
-
         public override string ToString() => string.Format("{0}={1}", key, value);
-                
-
         public void Load(BinaryReader reader)
         {
             key = reader.ReadString();
@@ -65,7 +52,6 @@ public Pair(string line) => InString(line);/**/
                 default: throw new ArgumentException($"Это надо предусмотреть! type = {type}");
             }            
         }
-
         public void Save(BinaryWriter writer)
         {
             writer.Write(key);
@@ -80,7 +66,6 @@ public Pair(string line) => InString(line);/**/
                 default: throw new ArgumentException($"Это надо предусмотреть! type = {type}");
             }            
         }
-
         private enum PairType
         {
             i,b,d,s,IHdata
@@ -92,10 +77,14 @@ public Pair(string line) => InString(line);/**/
     public class Pairs : IHData, IEnumerable<Pair>
     {
         private List<Pair> data;
-
         public Pairs()
         {
             data = new List<Pair>();
+        }
+
+        public Pairs(BinaryReader reader):this()
+        {
+            Load(reader);
         }
 
         public void Add(Pair pair) => data.Add(pair);
@@ -103,20 +92,27 @@ public Pair(string line) => InString(line);/**/
         {
             Add(new Pair(key, value));
         }
-
-        
-
+        public IEnumerator<Pair> GetEnumerator() => ((IEnumerable<Pair>)data).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Pair>)data).GetEnumerator();
         public void Load(BinaryReader reader)
         {
-            throw new NotImplementedException();
-        }
+            var count = reader.ReadInt32();
+            for (int i = 0; i < count; i++)
+            {
+                var pair = new Pair();
+                pair.Load(reader);
+                Add(pair);
+            }
 
+        }
         public void Save(BinaryWriter writer)
         {
-            throw new NotImplementedException();
+            writer.Write(data.Count);
+            foreach (var pair in data)
+            {
+                pair.Save(writer);
+            }
         }
-
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<Pair>)data).GetEnumerator();
     }
 
 }
