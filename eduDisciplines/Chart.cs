@@ -104,6 +104,10 @@ namespace htyWEBlib.eduDisciplines
                 data.Save(writer);
             }
         }
+
+
+
+
         #endregion
         #region Констркуторы и переопределения        
         public override void Load(BinaryReader reader)
@@ -136,6 +140,7 @@ namespace htyWEBlib.eduDisciplines
         {
             XAxis = new Axis();
             YAxis = new Axis();
+            Data = new List<HPoint>();
         }
         #endregion
         #region Функционал
@@ -163,9 +168,12 @@ namespace htyWEBlib.eduDisciplines
             int endY = (int)OY.Y + padding;
             int stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
             Rails(svg, beginX, endX, stepX, beginY, endY, stepY);
-            var p = Data[0];
-            ConvertPoint(beginX, stepX, beginY, stepY, p);
-
+            foreach (var p in Data)
+            {
+                //var p = Data[0];
+                var np = ConvertPoint(p, beginX, stepX, beginY, stepY);
+                svg.Circle(np, 2);
+            }
             return tag;
         }
 
@@ -181,12 +189,13 @@ namespace htyWEBlib.eduDisciplines
             var g = svg.AddG();
             for (int x = beginX; x <= endX; x += stepX)
             {
-                g.Line(x, beginY, x, endY);
-                g.Text(new HPoint(x, beginX), )
+                g.Line(x, beginY, x, endY, null);
+                //g.Text(new HPoint(x, beginX), )
             }
             for (int y = beginY; y >= endY; y -= stepY)
-                g.Line(beginX, y, endX, y);
+                g.Line(beginX, y, endX, y, null);
             g["stroke-dasharray"] = "10,5";
+            g["stroke"] = "black";
         }
 
         private void PicAxis(int padding, SvgTag svg, HPoint O0, HPoint OX, HPoint OY)
@@ -197,6 +206,19 @@ namespace htyWEBlib.eduDisciplines
                 svg.Text(OX.Delta(-20, 10), XAxis.Label);
             if (YAxis.Label != null)
                 svg.Text(OY.Delta(-padding, 0), YAxis.Label);
+        }
+
+        public void Add(params HPoint[] points)
+        {
+            Data.AddRange(points);/*
+            foreach (HPoint point in points)
+            {
+                Data.Add(point);
+            }/**/
+        }
+        public void Add(double x, double y)
+        {
+            Data.Add(new HPoint(x,y));
         }
         #endregion
         #region 

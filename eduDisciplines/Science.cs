@@ -10,7 +10,6 @@ namespace htyWEBlib.eduDisciplines
     public class Science: IHData, IComparable, IEnumerable<Science>, IHStringData
     {
         #region Поля и свойства
-
         /// <summary>Название </summary>
         public string Name { get; set; }
         /// <summary>Индивидуальный порядковый номер</summary>

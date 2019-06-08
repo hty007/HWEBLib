@@ -2,6 +2,9 @@
 
 namespace htyWEBlib.Tag
 {
+    /// <summary>
+    /// Содержание Стрницы
+    /// </summary>
     public class BodyTag : HTag
     {
         public HTag Header { get => (HTag)Content[0]; set=> Content[0]= (HTag)value; }
@@ -10,9 +13,9 @@ namespace htyWEBlib.Tag
 
         public BodyTag() : base(TypeTAG.body)
         {
-            Header = HTag.Build(TypeTAG.header);
-            Main = HTag.Build(TypeTAG.main);
-            Footer = HTag.Build(TypeTAG.footer);
+            Add(TypeTAG.header);
+            Add(TypeTAG.main);
+            Add(TypeTAG.footer); 
         }
 
         

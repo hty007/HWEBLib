@@ -46,7 +46,8 @@
         line,
         rect,
         g,
-        text
+        text,
+        circle
     }
 
 }

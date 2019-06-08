@@ -1,7 +1,6 @@
 ﻿using htyWEBlib.Geo;
 using htyWEBlib.HelpersTag;
 using System;
-using System.Drawing;
 
 namespace htyWEBlib.Tag
 {
@@ -74,10 +73,39 @@ namespace htyWEBlib.Tag
             tag["y1"] = (Math.Round(y1)).ToString();
             tag["x2"] = (Math.Round(x2)).ToString();
             tag["y2"] = (Math.Round(y2)).ToString();
-            tag["stroke"] = stroke;
+            if (stroke !=  null)
+                tag["stroke"] = stroke;
             this.Add(tag);
             return tag;
         }
+        public SvgContent Circle(Geo.HPoint M, double r,
+            string stroke = "black", string strokeWidth = "1",
+            string fill = null)
+        {
+            return Circle(M.X, M.Y, r, stroke, strokeWidth, fill);
+        }
+
+        public SvgContent Circle(double cx, double cy, double r, 
+            string stroke = "black", string strokeWidth = "1", 
+            string fill = null)
+        {
+            var tag = new SvgContent(TypeTAG.circle);
+            tag["cx"] = (Math.Round(cx)).ToString();
+            tag["cy"] = (Math.Round(cy)).ToString();
+            tag["r"] = (Math.Round(r)).ToString();
+
+            if (stroke != null)
+                tag["stroke"] = stroke;
+
+            tag["stroke-width"] = strokeWidth;
+
+            if (fill != null)
+                tag["fill"] = fill;
+
+            this.Add(tag);
+            return tag;
+        }
+
         public SvgContent AddG()
         {
             var tag = new SvgContent(TypeTAG.g);            
