@@ -105,9 +105,6 @@ namespace htyWEBlib.eduDisciplines
             }
         }
 
-
-
-
         #endregion
         #region Констркуторы и переопределения        
         public override void Load(BinaryReader reader)
@@ -149,7 +146,7 @@ namespace htyWEBlib.eduDisciplines
             int w = 300;
             int h = 200;
             int margin = 5;
-            int padding = 10;
+            int padding = 15;
             var tag = HTag.Build(TypeTAG.div, nameID: $"chart{ID}");
             tag.AddP(Name);
             var svg = tag.AddSvg();
@@ -167,7 +164,7 @@ namespace htyWEBlib.eduDisciplines
             int beginY = (int)O0.Y;
             int endY = (int)OY.Y + padding;
             int stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
-            Rails(svg, beginX, endX, stepX, beginY, endY, stepY);
+            Rails(svg, beginX, endX, stepX, beginY, endY, stepY, padding);
             foreach (var p in Data)
             {
                 //var p = Data[0];
@@ -184,13 +181,13 @@ namespace htyWEBlib.eduDisciplines
             return new HPoint(newX, newY);
         }
 
-        private static void Rails(SvgTag svg, int beginX, int endX, int stepX, int beginY, int endY, int stepY)
+        private void Rails(SvgTag svg, int beginX, int endX, int stepX, int beginY, int endY, int stepY, int padding)
         {
             var g = svg.AddG();
             for (int x = beginX; x <= endX; x += stepX)
             {
                 g.Line(x, beginY, x, endY, null);
-                //g.Text(new HPoint(x, beginX), )
+                g.Text(new HPoint(x, beginY+ padding), (-beginX + x / stepX * XAxis.SingleSegment).ToString() );
             }
             for (int y = beginY; y >= endY; y -= stepY)
                 g.Line(beginX, y, endX, y, null);
@@ -203,7 +200,7 @@ namespace htyWEBlib.eduDisciplines
             svg.Arrow(O0, OX, padding);
             svg.Arrow(O0, OY, padding);
             if (XAxis.Label != null)
-                svg.Text(OX.Delta(-20, 10), XAxis.Label);
+                svg.Text(OX.Delta(-20, 15), XAxis.Label);
             if (YAxis.Label != null)
                 svg.Text(OY.Delta(-padding, 0), YAxis.Label);
         }
