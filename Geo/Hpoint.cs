@@ -2,7 +2,6 @@
 using htyWEBlib.Tag;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +13,6 @@ namespace htyWEBlib.Geo
     {
         public double X { get; set; }
         public double Y { get; set; }
-
         #region Конструкторы
         public HPoint(double x, double y)
         {
@@ -26,11 +24,7 @@ namespace htyWEBlib.Geo
             this.X = X;
             this.Y = Y;
         }
-        public HPoint(Point value)
-        {
-            X = value.X;
-            Y = value.Y;
-        }
+
         public HPoint()
         {
         }
@@ -59,15 +53,15 @@ namespace htyWEBlib.Geo
         {
             return (instance.X >= 0 && instance.Y >= 0 && instance.X < maxX && instance.Y < maxY);
         }
+        public HPoint Delta(double dx, double dy)
+        {
+            return new HPoint(X + dx, Y + dy);
+        }
         #endregion
         #region Перегрузки, интерфейсы и другие форматы
         public override string ToString()
         {
             return $"({X:f}, {Y:f})";
-        }
-        public Point ToPoint(double dX = 0, double dY = 0)
-        {
-            return new Point((int)(X + dX), (int)(Y + dY));
         }
         public void Load(BinaryReader reader)
         {
@@ -78,11 +72,6 @@ namespace htyWEBlib.Geo
         {
             writer.Write(X);
             writer.Write(Y);
-        }
-
-        public HPoint Delta(double dx, double dy)
-        {
-            return new HPoint(X + dx, Y + dy);            
         }
         #endregion
     }
