@@ -30,6 +30,7 @@ namespace htyWEBlib.eduDisciplines
             private bool TryLabel;
 
             public int CountStep => (int)Math.Ceiling((Max - Min) / SingleSegment);
+            /// <summary>Метка, надпись</summary>
             public string Label
             {
                 get => label;
@@ -39,12 +40,13 @@ namespace htyWEBlib.eduDisciplines
                     label = value;
                 }
             }
+            /// <summary>Eдиничный отрезок</summary>
             public double SingleSegment
             {
                 get
                 {
                     if (TrySegment)
-                        if (singleSegment == 0) return step;
+                        if (Math.Abs(singleSegment) < 1e-6) return step;
                     return singleSegment;
                 }
                 set
@@ -53,12 +55,13 @@ namespace htyWEBlib.eduDisciplines
                     singleSegment = value;
                 }
             }
+            /// <summary>Шаг нумерования</summary>
             public double Step
             {
                 get
                 {
                     if (TrySegment)
-                        if (step == 0) return singleSegment;
+                        if (Math.Abs(step) < 1e-6) return singleSegment;
                     return step;
                 }
 
@@ -143,28 +146,19 @@ namespace htyWEBlib.eduDisciplines
         #region Функционал
         public override HTag ToTag()
         {
-            int w = 300;
-            int h = 200;
-            int margin = 5;
-            int padding = 15;
+            TData data = new TData(width: 300,heigth: 200);
+            data.Calculate(this, m: 5, p: 15);
             var tag = HTag.Build(TypeTAG.div, nameID: $"chart{ID}");
             tag.AddP(Name);
             var svg = tag.AddSvg();
-            svg.Width = w.ToString();
-            svg.Height = h.ToString();
-            var O0 = new HPoint(x: margin + padding, y: h - margin - padding);
-            var OX = new HPoint(x: w - margin, y: O0.Y);
-            var OY = new HPoint(x: O0.X, y: margin + padding);
+            svg.Width = data.Width.ToString();
+            svg.Height = data.Heigth.ToString();
             // Рисуем оси и подписываем их
-            PicAxis(padding, svg, O0, OX, OY);
+            data.PicAxis(svg);
             // Рисуем направляющие
-            int beginX = (int)O0.X;
-            int endX = (int)OX.X - padding;
-            int stepX = (endX - beginX) / (XAxis.CountStep);
-            int beginY = (int)O0.Y;
-            int endY = (int)OY.Y + padding;
-            int stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
-            Rails(svg, beginX, endX, stepX, beginY, endY, stepY, padding);
+            data.Rails(svg);
+            // Подписываем еденичные отрезки
+            data.Labels(svg);
             foreach (var p in Data)
             {
                 //var p = Data[0];
@@ -181,29 +175,7 @@ namespace htyWEBlib.eduDisciplines
             return new HPoint(newX, newY);
         }
 
-        private void Rails(SvgTag svg, int beginX, int endX, int stepX, int beginY, int endY, int stepY, int padding)
-        {
-            var g = svg.AddG();
-            for (int x = beginX; x <= endX; x += stepX)
-            {
-                g.Line(x, beginY, x, endY, null);
-                g.Text(new HPoint(x, beginY+ padding), (-beginX + x / stepX * XAxis.SingleSegment).ToString() );
-            }
-            for (int y = beginY; y >= endY; y -= stepY)
-                g.Line(beginX, y, endX, y, null);
-            g["stroke-dasharray"] = "10,5";
-            g["stroke"] = "black";
-        }
 
-        private void PicAxis(int padding, SvgTag svg, HPoint O0, HPoint OX, HPoint OY)
-        {
-            svg.Arrow(O0, OX, padding);
-            svg.Arrow(O0, OY, padding);
-            if (XAxis.Label != null)
-                svg.Text(OX.Delta(-20, 15), XAxis.Label);
-            if (YAxis.Label != null)
-                svg.Text(OY.Delta(-padding, 0), YAxis.Label);
-        }
 
         public void Add(params HPoint[] points)
         {
@@ -216,6 +188,78 @@ namespace htyWEBlib.eduDisciplines
         public void Add(double x, double y)
         {
             Data.Add(new HPoint(x,y));
+        }
+
+        private class TData
+        {
+            public TData(int width, int heigth)
+            {
+                Width = width;
+                Heigth = heigth;
+            }
+            internal int Width;
+            internal int Heigth;
+            internal int margin;
+            internal int padding;
+            internal int beginX;
+            internal int endX;
+            internal int stepX;
+            internal int beginY;
+            internal int endY;
+            internal int stepY;
+            
+            /// <summary> Начало координат </summary>
+            public HPoint O0 { get; internal set; }
+            /// <summary> Нахождения оси Х </summary>
+            public HPoint OX { get; internal set; }
+            /// <summary> Нахождение оси Y </summary>
+            public HPoint OY { get; internal set; }
+            public Axis XAxis { get; private set; }
+            public Axis YAxis { get; private set; }
+
+            internal void Calculate(Chart ch , int m, int p)
+            {
+                margin = m; padding = p;
+                XAxis = ch.XAxis; YAxis = ch.YAxis;
+                O0 = new HPoint(x: margin + padding, y: Heigth - margin - padding);
+                OX = new HPoint(x: Width - margin, y: O0.Y);
+                OY = new HPoint(x: O0.X, y: margin + padding);
+                beginX = (int)O0.X;
+                endX = (int)OX.X - padding;
+                stepX = (endX - beginX) / (XAxis.CountStep);
+                beginY = (int)O0.Y;
+                endY = (int)OY.Y + padding;
+                stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
+            }
+            /// <summary> Рисуем направляющие</summary>
+            internal void Rails(SvgTag svg)
+            {
+                    var g = svg.AddG();
+                    for (int x = beginX; x <= endX; x += stepX)
+                    {
+                        g.Line(x, beginY, x, endY, null);
+                        g.Text(new HPoint(x, beginY + padding), (-beginX + x / stepX * XAxis.SingleSegment).ToString());
+                    }
+                    for (int y = beginY; y >= endY; y -= stepY)
+                        g.Line(beginX, y, endX, y, null);
+                    g["stroke-dasharray"] = "10,5";
+                    g["stroke"] = "black";
+            }
+            /// <summary> Рисуем оси и подписываем их</summary>
+            internal void PicAxis(SvgTag svg)
+            {
+                    svg.Arrow(O0, OX, padding);
+                    svg.Arrow(O0, OY, padding);
+                    if (XAxis.Label != null)
+                        svg.Text(OX.Delta(-20, 15), XAxis.Label);
+                    if (YAxis.Label != null)
+                        svg.Text(OY.Delta(-padding, 0), YAxis.Label);                
+            }
+
+            internal void Labels(SvgTag svg)
+            {
+                XAxis.Step;
+            }
         }
         #endregion
         #region 
