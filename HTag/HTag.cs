@@ -179,9 +179,9 @@ namespace htyWEBlib.Tag
             this.AddContent(tag);
             return tag;
         }
-        public SvgTag AddSvg(string nameID = null)
+        public SvgTag AddSvg(string nameID = null, int width = 0, int height = 0)
         {
-            var tag = new SvgTag(nameID);
+            var tag = new SvgTag(width, height, nameID);
             this.AddContent(tag);
             return tag;
         }
