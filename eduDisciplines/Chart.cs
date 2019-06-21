@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using htyWEBlib.data;
@@ -10,7 +11,7 @@ namespace htyWEBlib.eduDisciplines
     public class Chart : Fragment
     {        
         #region Поля, свойства
-        public List<HPoint> Data { get; set; }
+        public List<Session> Data { get; set; }
         public Axis XAxis { get; set; }
         public Axis YAxis { get; set; }
 
@@ -29,7 +30,8 @@ namespace htyWEBlib.eduDisciplines
             private bool TrySegment;
             private bool TryLabel;
 
-            public int CountStep => (int)Math.Ceiling((Max - Min) / SingleSegment);
+            public int CountStep => (int)Math.Ceiling((Max - Min) / Step);
+            public int CountSingle => (int)Math.Ceiling((Max - Min) / SingleSegment);
             /// <summary>Метка, надпись</summary>
             public string Label
             {
@@ -119,9 +121,9 @@ namespace htyWEBlib.eduDisciplines
             int cD = reader.ReadInt32();
             for (int i = 0; i < cD; i++)
             {
-                HPoint p = new HPoint();
-                p.Load(reader);
-                Data.Add(p);
+                Session s = new Session();
+                s.Load(reader);
+                Data.Add(s);
             }
         }
         public override void Save(BinaryWriter writer)
@@ -131,63 +133,89 @@ namespace htyWEBlib.eduDisciplines
             XAxis.Save(writer);
             YAxis.Save(writer);
             writer.Write(Data.Count);
-            foreach (HPoint p in Data)
+            foreach (Session s in Data)
             {
-                p.Save(writer);
+                s.Save(writer);
             }
         }
         public Chart()
         {
             XAxis = new Axis();
             YAxis = new Axis();
-            Data = new List<HPoint>();
+            Data = new List<Session>();
         }
         #endregion
         #region Функционал
+        public void MinMax()
+        {
+            double minX, minY, maxX, maxY;
+            minX = minY = maxX = maxY = 0;
+            foreach (var session in Data)
+                foreach(HPoint point in session)
+                {
+                    if (minX > point.X) minX = point.X;
+                    if (maxX < point.X) maxX = point.X;
+                    if (minY > point.Y) minY = point.Y;
+                    if (maxY < point.Y) maxY = point.Y;
+                }
+            XAxis.Max = maxX; XAxis.Min = minX;
+            YAxis.Max = maxY; YAxis.Min = minY;
+        }
+
         public override HTag ToTag()
         {
             TData data = new TData(width: 300,heigth: 200);
+            MinMax();
             data.Calculate(this, m: 5, p: 15);
             var tag = HTag.Build(TypeTAG.div, nameID: $"chart{ID}");
             tag.AddP(Name);
-            var svg = tag.AddSvg();
-            svg.Width = data.Width.ToString();
-            svg.Height = data.Heigth.ToString();
+            SvgTag svg = tag.AddSvg($"chart{ID}", data.Width, data.Heigth);
             // Рисуем оси и подписываем их
             data.PicAxis(svg);
             // Рисуем направляющие
             data.Rails(svg);
             // Подписываем еденичные отрезки
             data.Labels(svg);
-            foreach (var p in Data)
+            foreach (var p in Data[0])
             {
                 //var p = Data[0];
-                var np = ConvertPoint(p, beginX, stepX, beginY, stepY);
+                var np = data.ConvertPoint(p);
                 svg.Circle(np, 2);
             }
             return tag;
         }
 
-        private HPoint ConvertPoint(HPoint p, int beginX, int stepX, int beginY, int stepY )
+
+
+        /// <summary>
+        /// Добавить новую сесию
+        /// </summary>
+        /// <param name="points">Points.</param>
+        public void AddSession(params HPoint[] points)
         {
-            var newX = beginX + p.X * stepX / XAxis.SingleSegment;
-            var newY = beginY - p.Y * stepY / YAxis.SingleSegment;
-            return new HPoint(newX, newY);
+            Session s = new Session();
+            s.Add(points);
+            Data.Add(s);
         }
-
-
-
+        /// <summary>
+        /// Добавить точки в последную  сесию
+        /// </summary>
+        /// <param name="points">Points.</param>
         public void Add(params HPoint[] points)
         {
-            Data.AddRange(points);/*
-            foreach (HPoint point in points)
-            {
-                Data.Add(point);
-            }/**/
+            if (Data.Count == 0) Data.Add(new Session());
+            Data[Data.Count - 1].Add(points);
         }
-        public void Add(double x, double y)
+        /// <summary>
+        /// Добавить точки в определёную сесию
+        /// </summary>
+        /// <param name="session">Session.</param>
+        /// <param name="x">The x coordinate.</param>
+        /// <param name="y">The y coordinate.</param>
+        public void Add(int session, double x, double y)
         {
-            Data.Add(new HPoint(x,y));
+            if (session >= Data.Count) throw new ArgumentException();
+            Data[session].Add(x,y);
         }
 
         private class TData
@@ -226,10 +254,10 @@ namespace htyWEBlib.eduDisciplines
                 OY = new HPoint(x: O0.X, y: margin + padding);
                 beginX = (int)O0.X;
                 endX = (int)OX.X - padding;
-                stepX = (endX - beginX) / (XAxis.CountStep);
+                stepX = (endX - beginX) / (XAxis.CountSingle);
                 beginY = (int)O0.Y;
                 endY = (int)OY.Y + padding;
-                stepY = Math.Abs(endY - beginY) / (YAxis.CountStep);
+                stepY = Math.Abs(endY - beginY) / (YAxis.CountSingle);
             }
             /// <summary> Рисуем направляющие</summary>
             internal void Rails(SvgTag svg)
@@ -238,7 +266,7 @@ namespace htyWEBlib.eduDisciplines
                     for (int x = beginX; x <= endX; x += stepX)
                     {
                         g.Line(x, beginY, x, endY, null);
-                        g.Text(new HPoint(x, beginY + padding), (-beginX + x / stepX * XAxis.SingleSegment).ToString());
+                        
                     }
                     for (int y = beginY; y >= endY; y -= stepY)
                         g.Line(beginX, y, endX, y, null);
@@ -258,7 +286,23 @@ namespace htyWEBlib.eduDisciplines
 
             internal void Labels(SvgTag svg)
             {
-                XAxis.Step;
+                var g = svg.AddG();
+                for (int i = 0; i<XAxis.CountStep; i++)
+                {
+                    int x = beginX + i * stepX;
+                    int y = beginY + padding;
+                    double lab = i * XAxis.Step;
+                       
+                    g.Text(new HPoint(x,y), lab.ToString());
+                }
+
+            }
+
+            internal HPoint ConvertPoint(HPoint p)
+            {
+                    var newX = beginX + p.X * stepX / XAxis.SingleSegment;
+                    var newY = beginY - p.Y * stepY / YAxis.SingleSegment;
+                    return new HPoint(newX, newY);
             }
         }
         #endregion
@@ -266,4 +310,50 @@ namespace htyWEBlib.eduDisciplines
         #endregion
     }
 
+    public class Session: IEnumerable<HPoint>, IHData
+    {
+        private List<HPoint> data;
+        public HPoint this[int index] { get => data[index]; set => data[index] = value;  }
+        public int Count { get => data.Count; }
+        public Session()
+        {
+            data = new List<HPoint>();
+        }
+        public void Add(double x, double y)
+        {
+            Add(new HPoint(x, y));
+        }
+        public void Add(params HPoint[] points)
+        {
+            data.AddRange(points);
+        }
+
+        public IEnumerator<HPoint> GetEnumerator()
+        {
+            return ((IEnumerable<HPoint>)data).GetEnumerator();
+        }
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable<HPoint>)data).GetEnumerator();
+        }
+        public void Load(BinaryReader reader)
+        {
+            data.Clear();
+            int c = reader.ReadInt32();
+            for (int i = 0; i<c; i++)
+            {
+                HPoint p = new HPoint();
+                p.Load(reader);
+                data.Add(p);
+            }
+        }
+        public void Save(BinaryWriter writer)
+        {
+            writer.Write(Count);
+            foreach (var p in data)
+            {
+                p.Save(writer);
+            }
+        }
+    }
 }
