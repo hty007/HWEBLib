@@ -15,9 +15,10 @@ namespace htyWEBlib.Tag
         }
         public SvgTag(string name) : this()
         {
-            this["name"] = name;
+            if (name != null)
+                this["name"] = name;
         }
-        public SvgTag( double width, double height, string name = null) : this()
+        public SvgTag( int width, int height, string name = null) : this()
         {
             if (name != null)
                 this["name"] = name;
@@ -41,11 +42,11 @@ namespace htyWEBlib.Tag
         internal SvgContent Arrow(Geo.HPoint o0, Geo.HPoint oX, double length = -1)
         {
                Line line = new Line(o0, oX);
-               var tag = line.Arrow(0.4, (length == -1)?line.Length * 0.1:length);
+               var tag = line.Arrow(0.4, (length < 0)?line.Length * 0.1:length);
                Add(tag);
                return tag;
         }
-        internal new SvgContent Text(Geo.HPoint pos, string text, double length = -1)
+        internal new SvgContent Text(Geo.HPoint pos, string text)
         {
             var tag = new SvgContent(TypeTAG.text);
             tag["x"] = ((int)pos.X).ToString();
