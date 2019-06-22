@@ -47,7 +47,8 @@
         rect,
         g,
         text,
-        circle
+        circle,
+        polyline
     }
 
 }

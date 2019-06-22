@@ -1,6 +1,7 @@
 ﻿using htyWEBlib.Geo;
 using htyWEBlib.HelpersTag;
 using System;
+using System.Text;
 
 namespace htyWEBlib.Tag
 {
@@ -107,12 +108,30 @@ namespace htyWEBlib.Tag
             return tag;
         }
 
-        public SvgContent AddG()
+        public SvgContent AddG(string id = null)
         {
-            var tag = new SvgContent(TypeTAG.g);            
+            var tag = new SvgContent(TypeTAG.g);
+            if (id!= null)
+                tag["id"] = id;            
             this.Add(tag);
             return tag;
         }
 
+        public SvgContent AddPolyline(params HPoint[] points)
+        {
+            SvgContent tag = new SvgContent(TypeTAG.polyline);
+            StringBuilder s = new StringBuilder();
+            foreach(var p in points)
+            {
+                if (s.Length != 0) s.Append(" ");
+                s.Append(p.ToString());
+            }
+
+            tag["points"] = s.ToString();
+            tag["style"] = "fill:none;stroke:black;stroke-width:3";
+
+            this.Add(tag);
+            return tag;
+        }
     }
 }

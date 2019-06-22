@@ -8,12 +8,14 @@ using htyWEBlib.Tag;
 
 namespace htyWEBlib.eduDisciplines
 {
+
     public class Chart : Fragment
     {        
         #region Поля, свойства
         public List<Session> Data { get; set; }
         public Axis XAxis { get; set; }
         public Axis YAxis { get; set; }
+        private readonly static double EPSILON = 1e-6;
 
         public class Axis : IHData
         {
@@ -28,17 +30,21 @@ namespace htyWEBlib.eduDisciplines
             /// <summary>Eдиничный отрезок</summary>
             private double singleSegment;
             private bool TrySegment;
-            private bool TryLabel;
+            private bool railes = false;
 
             public int CountStep => (int)Math.Ceiling((Max - Min) / Step);
             public int CountSingle => (int)Math.Ceiling((Max - Min) / SingleSegment);
+            public int CountSinglePositive => (int)Math.Ceiling((Max) / SingleSegment);
+            /// <summary>
+            /// Число шагов в отрицательную сторону (значение отрицательое ) 
+            /// </summary>
+            public int CountSingleNegative => (int)Math.Ceiling((Min) / SingleSegment);
             /// <summary>Метка, надпись</summary>
             public string Label
             {
                 get => label;
                 set
                 {
-                    TryLabel = true;
                     label = value;
                 }
             }
@@ -74,14 +80,17 @@ namespace htyWEBlib.eduDisciplines
                 }
             }
 
+            public bool Railes { get => railes; set => railes = value; }
+
             public void Load(BinaryReader reader)
             {
                 var data = new Pairs(reader);
                 var count = reader.ReadInt32();                
-                for (int i = 0; i < count; i++)
+                foreach (var p in data)
+                //for (int i = 0; i < count; i++)
                 {
-                    var p = new Pair();
-                    p.Load(reader);
+                    //var p = new Pair();
+                    //p.Load(reader);
                     switch (p.Key)
                     {
                         case "l": Label = (string)p.Value; break;
@@ -89,6 +98,7 @@ namespace htyWEBlib.eduDisciplines
                         case "mn": Min = (double)p.Value; break;
                         case "st": Step = (double)p.Value; break;
                         case "sn": SingleSegment = (double)p.Value; break;
+                        case "r": railes = (bool)p.Value; break;
                     }
                 }
             }
@@ -97,15 +107,17 @@ namespace htyWEBlib.eduDisciplines
                 var data = new Pairs();
                 if (label != null)
                     data.Add(new Pair("l", label));
-                if (Max != Min)
+                if (Math.Abs(Max - Min) > EPSILON)
                 {
                     data.Add(new Pair("mx", Max));
                     data.Add(new Pair("mn", Min));
                 }
-                if (step != 0)
+                if (Math.Abs(step) > EPSILON)
                     data.Add(new Pair("st", step));
-                if (singleSegment != 0)
+
+                if (Math.Abs(singleSegment) > EPSILON)
                     data.Add(new Pair("sn", singleSegment));
+                if (railes) data.Add("r", railes);
                 data.Save(writer);
             }
         }
@@ -158,8 +170,10 @@ namespace htyWEBlib.eduDisciplines
                     if (minY > point.Y) minY = point.Y;
                     if (maxY < point.Y) maxY = point.Y;
                 }
-            XAxis.Max = maxX; XAxis.Min = minX;
-            YAxis.Max = maxY; YAxis.Min = minY;
+            if (XAxis.Max < maxX) XAxis.Max = maxX;
+            if (XAxis.Min > minX) XAxis.Min = minX;
+            if (YAxis.Max < maxY) YAxis.Max = maxY;
+            if (YAxis.Min > minY) YAxis.Min = minY;
         }
 
         public override HTag ToTag()
@@ -176,14 +190,11 @@ namespace htyWEBlib.eduDisciplines
             data.Rails(svg);
             // Подписываем еденичные отрезки
             data.Labels(svg);
-            foreach (var p in Data[0])
-            {
-                //var p = Data[0];
-                var np = data.ConvertPoint(p);
-                svg.Circle(np, 2);
-            }
 
-            svg["stroke"] = "#765373";
+            data.PicSession(svg, Data[0]);
+
+
+            //svg["stroke"] = "#765373";
             return tag;
         }
 
@@ -195,7 +206,7 @@ namespace htyWEBlib.eduDisciplines
         /// <param name="points">Points.</param>
         public void AddSession(params HPoint[] points)
         {
-            Session s = new Session();
+            Session s = new Session(Data.Count);
             s.Add(points);
             Data.Add(s);
         }
@@ -205,7 +216,7 @@ namespace htyWEBlib.eduDisciplines
         /// <param name="points">Points.</param>
         public void Add(params HPoint[] points)
         {
-            if (Data.Count == 0) Data.Add(new Session());
+            if (Data.Count == 0) Data.Add(new Session(0));
             Data[Data.Count - 1].Add(points);
         }
         /// <summary>
@@ -220,6 +231,9 @@ namespace htyWEBlib.eduDisciplines
             Data[session].Add(x,y);
         }
 
+
+        #endregion
+        #region класс Tdata 
         private class TData
         {
             public TData(int width, int heigth)
@@ -231,13 +245,14 @@ namespace htyWEBlib.eduDisciplines
             internal int Heigth;
             internal int margin;
             internal int padding;
-            internal int beginX;
+            //internal int beginX;
             internal int endX;
             internal int stepX;
-            internal int beginY;
+            //internal int beginY;
             internal int endY;
             internal int stepY;
-            
+
+
             /// <summary> Начало координат </summary>
             public HPoint O0 { get; internal set; }
             /// <summary> Нахождения оси Х </summary>
@@ -246,81 +261,123 @@ namespace htyWEBlib.eduDisciplines
             public HPoint OY { get; internal set; }
             public Axis XAxis { get; private set; }
             public Axis YAxis { get; private set; }
+            public HPoint OX1 { get; private set; }
+            public HPoint OY1 { get; private set; }
 
-            internal void Calculate(Chart ch , int m, int p)
+            internal void Calculate(Chart ch, int m, int p)
             {
                 margin = m; padding = p;
                 XAxis = ch.XAxis; YAxis = ch.YAxis;
-                O0 = new HPoint(x: margin + 2*padding, y: Heigth - margin - padding);
+                //if(XAxis.Min<0)
+                O0 = new HPoint(x: margin + 2 * padding, y: Heigth - margin - padding);
                 OX = new HPoint(x: Width - margin, y: O0.Y);
                 OY = new HPoint(x: O0.X, y: margin + padding);
-                beginX = (int)O0.X;
-                endX = (int)OX.X - padding;
-                stepX = (endX - beginX) / (XAxis.CountSingle);
-                beginY = (int)O0.Y;
+                OX1 = O0.Delta(0,0);
+                OY1 = O0.Delta(0,0); 
+                endX = (int)OX.X - padding; 
                 endY = (int)OY.Y + padding;
-                stepY = Math.Abs(endY - beginY) / (YAxis.CountSingle);
+
+                if (XAxis.Min < 0)
+                {
+                    var steps = XAxis.CountSinglePositive - XAxis.CountSingleNegative ;
+                    stepX = ((int)(endX - OX1.X ) / steps);
+                    O0 = OX1.Delta(- XAxis.CountSingleNegative * stepX, 0);
+                    OY.X = OY1.X = O0.X;
+                }
+                else
+                    stepX = (int)((endX - OX1.X) / (XAxis.CountSingle));
+
+                if (YAxis.Min<0)
+                {
+                    var steps = YAxis.CountSinglePositive - YAxis.CountSingleNegative;
+                    stepY = ((int)(OY1.Y - endY ) / steps);
+                    O0 = OY1.Delta(0, YAxis.CountSingleNegative * stepY);
+                    OX.Y = OX1.Y = O0.Y;
+                }
+                else
+                    stepY = (int)(Math.Abs(endY - OY1.Y) / (YAxis.CountSingle));
             }
             /// <summary> Рисуем направляющие</summary>
             internal void Rails(SvgTag svg)
             {
-                    var g = svg.AddG();
-                    for (int x = beginX; x <= endX; x += stepX)
-                    {
-                        g.Line(x, beginY, x, endY, null);
-                        
-                    }
-                    for (int y = beginY; y >= endY; y -= stepY)
-                        g.Line(beginX, y, endX, y, null);
-                    g["stroke-dasharray"] = "10,5";
-                    g["stroke"] = "black";
+                var g = svg.AddG();
+                if (XAxis.Railes)
+                    for (int x = (int)OX1.X; x <= endX; x += stepX)
+                        if (Math.Abs(x - O0.X) > EPSILON)
+                        g.Line(x, OY1.Y, x, endY, null);
+
+
+                if (YAxis.Railes)
+                    for (int y = (int)OY1.Y; y >= endY; y -= stepY)
+                        if (Math.Abs(y - O0.Y) > EPSILON)
+                            g.Line(OX1.X, y, endX, y, null);
+
+                g["stroke-dasharray"] = "10,5";
+                g["stroke"] = "black";
             }
             /// <summary> Рисуем оси и подписываем их</summary>
             internal void PicAxis(SvgTag svg)
             {
-                    svg.Arrow(O0, OX, padding);
-                    svg.Arrow(O0, OY, padding);
-                    if (XAxis.Label != null)
-                        svg.Text(OX.Delta(-20, 15), XAxis.Label);
-                    if (YAxis.Label != null)
-                        svg.Text(OY.Delta(-padding, 0), YAxis.Label);                
+                var arX = svg.Arrow(OX1, OX, padding);
+                arX["stroke-width"] = "2";
+                var arY = svg.Arrow(OY1, OY, padding);
+                arY["stroke-width"] = "2";
+                if (XAxis.Label != null)
+                    svg.Text(OX.Delta(- 0.5* padding,  padding), XAxis.Label);
+                if (YAxis.Label != null)
+                    svg.Text(OY.Delta(-padding, 0), YAxis.Label);
             }
-
+            /// <summary> Надписи</summary>
             internal void Labels(SvgTag svg)
             {
                 var g = svg.AddG();
-
-                for (int i = 1; i<XAxis.CountSingle; i++)
-                if (Math.Abs(i * XAxis.SingleSegment % XAxis.Step) < 1e-6)
+                int l = 0;
+                for (int x = (int)OX1.X; x <= endX; x += stepX)
                 {
-                    int x = beginX + i * stepX;
-                    int y = beginY + padding;
-                    double lab = i * XAxis.SingleSegment;                       
-                    var label = g.Text(new HPoint(x,y), lab.ToString());
-                        label["text-anchor"] = "middle";
-                }
-
-                for (int i = 1; i < YAxis.CountSingle; i++)
-                    if (Math.Abs(i * YAxis.SingleSegment % YAxis.Step) < 1e-6)
+                    double lab = XAxis.Min + l*XAxis.SingleSegment;
+                    l++;
+                    if (Math.Abs(lab % XAxis.Step) < EPSILON)
                     {
-                        int x = beginX - 2*padding;
-                        int y = beginY - i* stepY;
-                        double lab = i * YAxis.SingleSegment;
-                        var label = g.Text(new HPoint(x, y), lab.ToString());
+                        var label = g.Text(new HPoint(x, O0.Y + padding), lab.ToString());
+                        label["text-anchor"] = "middle";
+                    }
+
+                }
+                l = 0;
+                for (int y = (int)OY1.Y; y >= endY; y -= stepY)
+                {
+                    double lab = YAxis.Min + l * YAxis.SingleSegment;
+                    l++;
+                    if (Math.Abs(lab % YAxis.Step) < EPSILON)
+                    {
+                        var label = g.Text(new HPoint(OX1.X - 2 * padding, y), lab.ToString());
                         label["dominant-baseline"] = "middle";
                     }
 
+                }
             }
 
             internal HPoint ConvertPoint(HPoint p)
             {
-                    var newX = beginX + p.X * stepX / XAxis.SingleSegment;
-                    var newY = beginY - p.Y * stepY / YAxis.SingleSegment;
-                    return new HPoint(newX, newY);
+                var newX = O0.X + p.X * stepX / XAxis.SingleSegment;
+                var newY = O0.Y - p.Y * stepY / YAxis.SingleSegment;
+                return new HPoint(newX, newY);
+            }
+
+            internal void PicSession(SvgTag svg, Session session)
+            {
+                SvgContent g = svg.AddG(id: $"session{session.ID}");
+                switch (session.Type)
+                {
+                    case SessionType.Line:
+                        SvgContent line = g.AddPolyline(session.GetPoints());
+                        break;
+                    case SessionType.Point: break;
+                    case SessionType.Square: break;
+
+                }
             }
         }
-        #endregion
-        #region 
         #endregion
     }
 
@@ -329,9 +386,14 @@ namespace htyWEBlib.eduDisciplines
         private List<HPoint> data;
         public HPoint this[int index] { get => data[index]; set => data[index] = value;  }
         public int Count { get => data.Count; }
-        public Session()
+        public SessionType Type { get; internal set; }
+        public int ID { get; internal set; }
+
+        public Session(int id = 0)
         {
             data = new List<HPoint>();
+            Type = SessionType.Point;
+            ID = id;
         }
         public void Add(double x, double y)
         {
@@ -369,5 +431,17 @@ namespace htyWEBlib.eduDisciplines
                 p.Save(writer);
             }
         }
+
+        internal HPoint[] GetPoints()
+        {
+            return data.ToArray();
+        }
+    }
+
+    public enum SessionType
+    {
+        Line, 
+        Point, 
+        Square
     }
 }
