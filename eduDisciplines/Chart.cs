@@ -182,6 +182,8 @@ namespace htyWEBlib.eduDisciplines
                 var np = data.ConvertPoint(p);
                 svg.Circle(np, 2);
             }
+
+            svg["stroke"] = "#765373";
             return tag;
         }
 
@@ -249,7 +251,7 @@ namespace htyWEBlib.eduDisciplines
             {
                 margin = m; padding = p;
                 XAxis = ch.XAxis; YAxis = ch.YAxis;
-                O0 = new HPoint(x: margin + padding, y: Heigth - margin - padding);
+                O0 = new HPoint(x: margin + 2*padding, y: Heigth - margin - padding);
                 OX = new HPoint(x: Width - margin, y: O0.Y);
                 OY = new HPoint(x: O0.X, y: margin + padding);
                 beginX = (int)O0.X;
@@ -287,14 +289,26 @@ namespace htyWEBlib.eduDisciplines
             internal void Labels(SvgTag svg)
             {
                 var g = svg.AddG();
-                for (int i = 0; i<XAxis.CountStep; i++)
+
+                for (int i = 1; i<XAxis.CountSingle; i++)
+                if (Math.Abs(i * XAxis.SingleSegment % XAxis.Step) < 1e-6)
                 {
                     int x = beginX + i * stepX;
                     int y = beginY + padding;
-                    double lab = i * XAxis.Step;
-                       
-                    g.Text(new HPoint(x,y), lab.ToString());
+                    double lab = i * XAxis.SingleSegment;                       
+                    var label = g.Text(new HPoint(x,y), lab.ToString());
+                        label["text-anchor"] = "middle";
                 }
+
+                for (int i = 1; i < YAxis.CountSingle; i++)
+                    if (Math.Abs(i * YAxis.SingleSegment % YAxis.Step) < 1e-6)
+                    {
+                        int x = beginX - 2*padding;
+                        int y = beginY - i* stepY;
+                        double lab = i * YAxis.SingleSegment;
+                        var label = g.Text(new HPoint(x, y), lab.ToString());
+                        label["dominant-baseline"] = "middle";
+                    }
 
             }
 
