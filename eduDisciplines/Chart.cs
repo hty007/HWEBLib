@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using htyWEBlib.data;
@@ -12,7 +11,9 @@ namespace htyWEBlib.eduDisciplines
     public class Chart : Fragment
     {        
         #region Поля, свойства
-        public List<Session> Data { get; set; }
+        private List<Session> Data { get; set; }
+
+        public Session this[int index] { get => Data[index]; }
         public Axis XAxis { get; set; }
         public Axis YAxis { get; set; }
         private readonly static double EPSILON = 1e-6;
@@ -359,8 +360,8 @@ namespace htyWEBlib.eduDisciplines
 
             internal HPoint ConvertPoint(HPoint p)
             {
-                var newX = O0.X + p.X * stepX / XAxis.SingleSegment;
-                var newY = O0.Y - p.Y * stepY / YAxis.SingleSegment;
+                int newX = (int)(O0.X + p.X * stepX / XAxis.SingleSegment);
+                int newY = (int)(O0.Y - p.Y * stepY / YAxis.SingleSegment);
                 return new HPoint(newX, newY);
             }
 
@@ -370,78 +371,15 @@ namespace htyWEBlib.eduDisciplines
                 switch (session.Type)
                 {
                     case SessionType.Line:
-                        SvgContent line = g.AddPolyline(session.GetPoints());
+                        SvgContent line = g.AddPolyline(session.GetPoints(this.ConvertPoint));
                         break;
                     case SessionType.Point: break;
                     case SessionType.Square: break;
-
                 }
             }
         }
         #endregion
     }
 
-    public class Session: IEnumerable<HPoint>, IHData
-    {
-        private List<HPoint> data;
-        public HPoint this[int index] { get => data[index]; set => data[index] = value;  }
-        public int Count { get => data.Count; }
-        public SessionType Type { get; internal set; }
-        public int ID { get; internal set; }
 
-        public Session(int id = 0)
-        {
-            data = new List<HPoint>();
-            Type = SessionType.Point;
-            ID = id;
-        }
-        public void Add(double x, double y)
-        {
-            Add(new HPoint(x, y));
-        }
-        public void Add(params HPoint[] points)
-        {
-            data.AddRange(points);
-        }
-
-        public IEnumerator<HPoint> GetEnumerator()
-        {
-            return ((IEnumerable<HPoint>)data).GetEnumerator();
-        }
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable<HPoint>)data).GetEnumerator();
-        }
-        public void Load(BinaryReader reader)
-        {
-            data.Clear();
-            int c = reader.ReadInt32();
-            for (int i = 0; i<c; i++)
-            {
-                HPoint p = new HPoint();
-                p.Load(reader);
-                data.Add(p);
-            }
-        }
-        public void Save(BinaryWriter writer)
-        {
-            writer.Write(Count);
-            foreach (var p in data)
-            {
-                p.Save(writer);
-            }
-        }
-
-        internal HPoint[] GetPoints()
-        {
-            return data.ToArray();
-        }
-    }
-
-    public enum SessionType
-    {
-        Line, 
-        Point, 
-        Square
-    }
 }

@@ -61,7 +61,7 @@ namespace htyWEBlib.Geo
         #region Перегрузки, интерфейсы и другие форматы
         public override string ToString()
         {
-            return $"({X:f},{Y:f})";
+            return $"{X},{Y}";
         }
         public void Load(BinaryReader reader)
         {

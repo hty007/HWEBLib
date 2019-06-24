@@ -42,6 +42,7 @@ namespace htyWEBlib.eduDisciplines
         {
             data.Clear();
             int c = reader.ReadInt32();
+            Type = (htyWEBlib.eduDisciplines.SessionType)reader.ReadInt32();
             for (int i = 0; i < c; i++)
             {
                 HPoint p = new HPoint();
@@ -52,6 +53,7 @@ namespace htyWEBlib.eduDisciplines
         public void Save(BinaryWriter writer)
         {
             writer.Write(Count);
+            writer.Write((int)Type);
             foreach (var p in data)
             {
                 p.Save(writer);
@@ -73,4 +75,11 @@ namespace htyWEBlib.eduDisciplines
             return points.ToArray();
         }
     }
+    public enum SessionType
+    {
+        Line,
+        Point,
+        Square
+    }
+
 }

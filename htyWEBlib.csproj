@@ -68,6 +68,7 @@
     <Compile Include="HTag\BodyTag.cs" />
     <Compile Include="HTag\UlTag.cs" />
     <Compile Include="eduDisciplines\Science.cs" />
+    <Compile Include="eduDisciplines\Session.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
